@@ -1,7 +1,8 @@
-# CloudStack API Client
+# cloudstack-client
 
-See CloudStack API reference:
-http://download.cloud.com/releases/3.0.3/api_3.0.3/TOC_Domain_Admin.html
+A ruby CloudStack API client by Nik Wolfgramm (<nik.wolfgramm@swisstxt.ch>) based on knife-cloudstack by Ryan Holmes (<rholmes@edmunds.com>), KC Braunschweig (<kcbraunschweig@gmail.com>)
+
+See [CloudStack API reference](http://download.cloud.com/releases/3.0.3/api_3.0.3/TOC_Domain_Admin.html)
 
 ## Installation
  - make sure you have a working ruby environment
@@ -13,4 +14,5 @@ http://download.cloud.com/releases/3.0.3/api_3.0.3/TOC_Domain_Admin.html
 To play see the ClouStack API client in action execute play-cloudstack:
 `ruby play-cloudstack`
 
-Copyright (C) 2012, Nik Wolfgramm 
+***
+&copy; 2012, Nik Wolfgramm
