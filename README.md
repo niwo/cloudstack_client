@@ -14,5 +14,8 @@ See [CloudStack API reference](http://download.cloud.com/releases/3.0.3/api_3.0.
 To play see the ClouStack API client in action execute play-cloudstack:
 `ruby play-cloudstack`
 
+
+
 ***
-&copy; 2012, Nik Wolfgramm
+
+Copyright (c) 2012, Nik Wolfgramm
