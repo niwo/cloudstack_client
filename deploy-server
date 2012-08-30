@@ -36,17 +36,6 @@ def print_options(options, attr = 'name')
   end 	
 end
 
-def execute_ssh_commands(server_connection)
-  puts "type exit if you are tired typing commands"
-  puts "Enter a command:".background(:blue)
-  command = gets.chomp
-  return if command == "exit" 
-  SshCommand.run(server_connection, command) do |output|
-    puts output.color(:green)
-  end
-  execute_ssh_commands(server_connection)
-end
-
 begin
   #######################################
   # Create a connection using the
@@ -70,13 +59,12 @@ rescue Exception => e
   exit
 end
 
-trap("SIGINT") { throw :ctrl_c }
 begin
   #########################################
   # Run command over the cloudtsack api
   #
   puts
-  puts %{We are going to deploy a new server on #{options[:cloudstack_url]} and...
+  puts %{We are going to deploy a new server on CloudStack and...
    - asign a public IP address
    - create a firewall rule for SSH and HTTP access
    - connect to the server and install the puppet client}.color(:magenta)
@@ -120,6 +108,11 @@ begin
   puts "OK!".color(:green)
 
   puts
+  puts "Get the fqdn of the server...".color(:yellow)
+  server_fqdn = cs.get_server_fqdn(server)
+  puts "fqdn is #{server_fqdn}".color(:green)
+
+  puts
   puts "Associate an IP address on the CloudStack firewall for the server...".color(:yellow)
   ip_addr = cs.associate_ip_address(networks[network]["id"])
   puts
@@ -136,39 +129,24 @@ begin
   puts
   
   puts
-  puts "Install the puppet client"
-  server_connection = { host: ip_addr["ipaddress"], username: "root", password: "blahblah" }
-  SshCommand.run(server_connection, "yum install puppet") do |output|
-    puts output.color(:green)
-  end
-  puts
+  puts "Install puppet client".color(:yellow)
+  server_connection = { host: server["nic"][0]["ipaddress"], username: "root", password: "blahblah" }
+  puts SshCommand.run(server_connection, "yum -y install puppet").color(:green)
 
-  puts 
-  puts "Create a cert request on the client"
-  server_connection = { host: ip_addr["ipaddress"], username: "root", password: "blahblah" }
-  SshCommand.run(server_connection, "puppet agent --test --waitforcert=0") do |output|
-    puts output.color(:green)
-  end
-  puts
+  puts "Create a cert request on the client".color(:yellow)
+  puts SshCommand.run(server_connection, "puppet agent --test --waitforcert=0").color(:green)
 
-  puts
-  puts "Sign sort on the puppetmaster"
-  sign_output = %x[puppet cert --sign #{server_name}]
+  puts "Sign request on puppetmaster"
+  sign_output = %x[puppet cert --sign #{server_fqdn}]
   puts sign_output
-  puts
 
-  puts
-  puts "Puppet should run now on #{server_name}:"
-  server_connection = { host: ip_addr["ipaddress"], username: "root", password: "blahblah" }
-  SshCommand.run(server_connection, "puppet agent --test") do |output|
-    puts output.color(:green)
-  end
+  puts "Puppet should run now on #{server_name}:".color(:yellow)
+  puts SshCommand.run(server_connection, "puppet agent --test").color(:green)
   puts
 
   puts "Finish!".color(:green)
-rescue SystemExit, Interrupt
-  raise
 rescue Exception => e
   puts
-  puts "received exit signal - bye!"
+  puts "Error".color(:red)
+  puts e.message
 end
