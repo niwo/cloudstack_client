@@ -100,7 +100,7 @@ module CloudstackClient
       return nil unless server
 
       nic = get_server_default_nic(server) || {}
-      networks = list_networks || {}
+      networks = list_networks(server['projectid']) || {}
 
       id = nic['networkid']
       network = networks.select { |net|
@@ -131,7 +131,7 @@ module CloudstackClient
     ##
     # Deploys a new server using the specified parameters.
 
-    def create_server(host_name, service_name, template_name, zone_name=nil, network_names=[])
+    def create_server(host_name, service_name, template_name, zone_name=nil, network_names=[], project_id=nil)
 
       if host_name then
         if get_server(host_name) then
@@ -161,12 +161,12 @@ module CloudstackClient
 
       networks = []
       network_names.each do |name|
-        network = get_network(name)
+        network = get_network(name, project_id)
         if !network then
           puts "Error: Network '#{name}' not found"
           exit 1
         end
-        networks << get_network(name)
+        networks << network
       end
       if networks.empty? then
         networks << get_default_network
@@ -184,7 +184,8 @@ module CloudstackClient
           'serviceOfferingId' => service['id'],
           'templateId' => template['id'],
           'zoneId' => zone['id'],
-          'networkids' => network_ids.join(',')
+          'networkids' => network_ids.join(','),
+	  'projectid' => project_id
       }
       params['name'] = host_name if host_name
 
@@ -363,10 +364,11 @@ module CloudstackClient
     ##
     # Finds the network with the specified name.
 
-    def get_network(name)
+    def get_network(name, project_id = nil)
       params = {
           'command' => 'listNetworks'
       }
+      params['projectid'] = project_id if project_id
       json = send_request(params)
 
       networks = json['network']
@@ -410,10 +412,11 @@ module CloudstackClient
     ##
     # Lists all available networks.
 
-    def list_networks
+    def list_networks(project_id = nil)
       params = {
           'command' => 'listNetworks'
       }
+      params['projectid'] = project_id if project_id
       json = send_request(params)
       json['network'] || []
     end
@@ -546,6 +549,29 @@ module CloudstackClient
       }
       json = send_async_request(params)
       json['portforwardingrule']
+    end
+
+    ##
+    # Get projectn by name.
+
+    def get_project(name)
+      params = {
+          'command' => 'listProjects',
+          'name' => name
+      }
+      json = send_request(params)
+      json['project']
+    end
+
+    ##
+    # Lists projects.
+            
+    def list_projects
+      params = {
+          'command' => 'listProjects',
+      }
+      json = send_request(params)
+      json['project'] || []
     end
 
     ##

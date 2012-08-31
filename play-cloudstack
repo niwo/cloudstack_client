@@ -60,8 +60,8 @@ begin
   )
   server_offerings = cs.list_service_offerings
   templates = cs.list_templates('featured')
-  networks = cs.list_networks
   zones = cs.list_zones
+  projects = cs.list_projects
 rescue SystemExit, Interrupt
   raise
 rescue Exception => e
@@ -90,6 +90,12 @@ begin
   puts " (spaces or special characters are NOT allowed): "
   server_name = gets.chomp
 
+  if projects.size > 0
+    puts "Select a project".background(:blue)
+    print_options(projects)
+    project = gets.chomp.to_i - 1
+  end
+
   puts "Select a computing offering:".background(:blue)
   print_options(server_offerings)
   service_offering = gets.chomp.to_i - 1
@@ -98,6 +104,8 @@ begin
   print_options(templates)
   template = gets.chomp.to_i - 1
 
+  project_id = projects[project]['id'] rescue nil
+  networks = cs.list_networks(project_id)
   puts "Select a network:".background(:blue)
   print_options(networks)
   network = gets.chomp.to_i - 1
@@ -113,7 +121,8 @@ begin
 		  server_offerings[service_offering]["name"],
 		  templates[template]["name"],
 		  zones[zone]["name"],
-		  [networks[network]["name"]]
+		  [networks[network]["name"]],
+                  project_id
 	  )
   puts
   puts "server #{server["name"]} has been created.".color(:green)

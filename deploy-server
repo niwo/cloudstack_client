@@ -48,7 +48,7 @@ begin
   )
   server_offerings = cs.list_service_offerings
   templates = cs.list_templates('featured')
-  networks = cs.list_networks
+  projects = cs.list_projects
   zones = cs.list_zones
 rescue SystemExit, Interrupt
   raise
@@ -74,6 +74,12 @@ begin
   puts " (spaces or special characters are NOT allowed): "
   server_name = gets.chomp
 
+  if projects.size > 0
+    puts "Select a project".background(:blue)
+    print_options(projects)
+    project = gets.chomp.to_i - 1
+  end
+
   puts "Select a computing offering:".background(:blue)
   print_options(server_offerings)
   service_offering = gets.chomp.to_i - 1
@@ -83,6 +89,8 @@ begin
   template = gets.chomp.to_i - 1
 
   puts "Select a network:".background(:blue)
+  project_id = projects[project]['id'] rescue nil
+  networks = cs.list_networks(project_id)
   print_options(networks)
   network = gets.chomp.to_i - 1
 
@@ -97,7 +105,8 @@ begin
 		  server_offerings[service_offering]["name"],
 		  templates[template]["name"],
 		  zones[zone]["name"],
-		  [networks[network]["name"]]
+		  [networks[network]["name"]],
+	          project_id
 	  )
   puts
   puts "server #{server["name"]} has been created.".color(:green)
@@ -130,7 +139,7 @@ begin
   
   puts
   puts "Install puppet client".color(:yellow)
-  server_connection = { host: server["nic"][0]["ipaddress"], username: "root", password: "blahblah" }
+  server_connection = { host: cs.get_server_default_nic(server)["ipaddress"], username: "root", password: "blahblah" }
   puts SshCommand.run(server_connection, "yum -y install puppet").color(:green)
 
   puts "Create a cert request on the client".color(:yellow)
