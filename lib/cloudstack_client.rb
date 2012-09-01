@@ -39,11 +39,12 @@ module CloudstackClient
     ##
     # Finds the server with the specified name.
 
-    def get_server(name)
+    def get_server(name, project_id=nil)
       params = {
           'command' => 'listVirtualMachines',
           'name' => name
       }
+      params['projectid'] = project_id if project_id
       json = send_request(params)
       machines = json['virtualmachine']
 
@@ -197,8 +198,8 @@ module CloudstackClient
     # Deletes the server with the specified name.
     #
 
-    def delete_server(name)
-      server = get_server(name)
+    def delete_server(name, project_id=nil)
+      server = get_server(name, project_id)
       if !server || !server['id'] then
         puts "Error: Virtual machine '#{name}' does not exist"
         exit 1
@@ -208,6 +209,7 @@ module CloudstackClient
           'command' => 'destroyVirtualMachine',
           'id' => server['id']
       }
+      params['projectid'] = project_id if project_id
 
       json = send_async_request(params)
       json['virtualmachine']

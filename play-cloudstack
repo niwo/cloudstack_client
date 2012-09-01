@@ -156,7 +156,7 @@ begin
   unless gets.chomp == "n"
     puts "Clean up the mess...".color(:yellow)
     puts "delete the server #{server["name"]}".color(:red)
-    cs.delete_server(server["name"])
+    cs.delete_server(server["name"], project_id)
     puts
     puts "release IP address #{ip_addr["ipaddress"]}".color(:red)
     cs.disassociate_ip_address(ip_addr["id"])
