@@ -65,7 +65,7 @@ begin
   #
   puts
   puts %{We are going to deploy a new server on CloudStack and...
-   - asign a public IP address
+   - assign a public IP address
    - create a firewall rule for SSH and HTTP access
    - connect to the server and install the puppet client}.color(:magenta)
   puts
