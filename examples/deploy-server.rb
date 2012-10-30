@@ -7,25 +7,15 @@
 
 require 'yaml'
 require 'rainbow'
-require File.join(File.dirname(__FILE__), 'lib', 'cloudstack_client')
-require File.join(File.dirname(__FILE__), 'lib', 'ssh_command')
-
-default_options = {
-  cloudstack_url: '',
-  cloudstack_api_key: '',
-  cloudstack_secret_key: ''
-}
+require 'require_relative'
+require_relative '../lib/cloudstack_client'
+require_relative '../lib/connection_helper'
+require_relative '../lib/ssh_command'
 
 #########################################
 # Load API secrets from config file
 #
-config_file = File.join(File.dirname(__FILE__), 'config', 'cloudstack.yml')
-begin
-  options = default_options.merge YAML::load(IO.read(config_file))
-rescue Exception => e
-  puts "Unable to load '#{config_file}' : #{e}".color(:red)
-  exit
-end
+options = CloudstackClient::ConnectionHelper.load_configuration()
 
 #########################################
 # defining helper functions
@@ -35,18 +25,6 @@ def print_options(options, attr = 'name')
     puts "#{i}: #{option[attr]}"
   end 	
 end
-
-def execute_ssh_commands(server_connection)
-  puts "type exit if you are tired typing commands"
-  puts "Enter a command:".background(:blue)
-  command = gets.chomp
-  return if command == "exit" 
-  SshCommand.run(server_connection, command) do |output|
-    puts output.color(:green)
-  end
-  execute_ssh_commands(server_connection)
-end
-
 
 begin
   #######################################
@@ -60,8 +38,8 @@ begin
   )
   server_offerings = cs.list_service_offerings
   templates = cs.list_templates('featured')
-  zones = cs.list_zones
   projects = cs.list_projects
+  zones = cs.list_zones
 rescue SystemExit, Interrupt
   raise
 rescue Exception => e
@@ -71,19 +49,15 @@ rescue Exception => e
   exit
 end
 
-trap("SIGINT") { throw :ctrl_c }
 begin
-
   #########################################
   # Run command over the cloudtsack api
   #
   puts
-  puts %{Action! We are going to deploy a new server on CloudStack and...
+  puts %{We are going to deploy a new server on CloudStack and...
    - assign a public IP address
-   - create a firewall rule for SSH access
-   - connect to the server and execute commands
-
-  Have fun playing around with the CloudStack API.}.color(:magenta)
+   - create a firewall rule for SSH and HTTP access
+   - connect to the server and install the puppet client}.color(:magenta)
   puts
 
   print "Please provide a name for the new server".background(:blue)
@@ -104,9 +78,9 @@ begin
   print_options(templates)
   template = gets.chomp.to_i - 1
 
+  puts "Select a network:".background(:blue)
   project_id = projects[project]['id'] rescue nil
   networks = cs.list_networks(project_id)
-  puts "Select a network:".background(:blue)
   print_options(networks)
   network = gets.chomp.to_i - 1
 
@@ -122,7 +96,7 @@ begin
 		  templates[template]["name"],
 		  zones[zone]["name"],
 		  [networks[network]["name"]],
-                  project_id
+	          project_id
 	  )
   puts
   puts "server #{server["name"]} has been created.".color(:green)
@@ -133,6 +107,11 @@ begin
   puts "OK!".color(:green)
 
   puts
+  puts "Get the fqdn of the server...".color(:yellow)
+  server_fqdn = cs.get_server_fqdn(server)
+  puts "fqdn is #{server_fqdn}".color(:green)
+
+  puts
   puts "Associate an IP address on the CloudStack firewall for the server...".color(:yellow)
   ip_addr = cs.associate_ip_address(networks[network]["id"])
   puts
@@ -141,32 +120,32 @@ begin
   puts
   puts "Create port forwarding rule for ssh access on the CloudStack firewall...".color(:yellow)
   cs.create_port_forwarding_rule(ip_addr["id"], 22, 'TCP', 22, server["id"])
+  puts
 
   puts
+  puts "Create port forwarding rule for HTTP access on the CloudStack firewall...".color(:yellow)
+  cs.create_port_forwarding_rule(ip_addr["id"], 80, 'TCP', 80, server["id"])
   puts
-  puts "Accessing server '#{server["name"]}' via ssh. You can execute commands like 'ls -al' or 'ps aux'...".color(:yellow)
-  server_connection = { host: ip_addr["ipaddress"], username: "root", password: "blahblah" }
-  execute_ssh_commands(server_connection)
+  
+  puts
+  puts "Install puppet client".color(:yellow)
+  server_connection = { host: cs.get_server_default_nic(server)["ipaddress"], username: "root", password: "blahblah" }
+  puts SshCommand.run(server_connection, "yum -y install puppet").color(:green)
 
-  ########################################
-  # Delete the created objects again
-  #
+  puts "Create a cert request on the client".color(:yellow)
+  puts SshCommand.run(server_connection, "puppet agent --test --waitforcert=0").color(:green)
+
+  puts "Sign request on puppetmaster"
+  sign_output = %x[puppet cert --sign #{server_fqdn}]
+  puts sign_output
+
+  puts "Puppet should run now on #{server_name}:".color(:yellow)
+  puts SshCommand.run(server_connection, "puppet agent --test").color(:green)
   puts
-  puts "Do you want to remove the created resources? [Y/n]".background(:blue)
-  unless gets.chomp == "n"
-    puts "Clean up the mess...".color(:yellow)
-    puts "delete the server #{server["name"]}".color(:red)
-    cs.delete_server(server["name"], project_id)
-    puts
-    puts "release IP address #{ip_addr["ipaddress"]}".color(:red)
-    cs.disassociate_ip_address(ip_addr["id"])
-  end
-  puts
-  puts
+
   puts "Finish!".color(:green)
-rescue SystemExit, Interrupt
-  raise
 rescue Exception => e
   puts
-  puts "bye!"
+  puts "Error".color(:red)
+  puts e.message
 end

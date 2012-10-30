@@ -8,13 +8,11 @@ See [CloudStack API reference](http://download.cloud.com/releases/3.0.3/api_3.0.
  - make sure you have a working ruby environment
  - install bundler `gem install bundler`
  - execute `bundle install` in order to install dependencies
- - copy the example config file `cp config/cloudstack.yml.example config/cloudstack.yml` and edit the CloudStack keys
+ - copy the example config file `cp config/cloudstack.example.yml config/cloudstack.yml` and edit the CloudStack keys
 
 ## Usage 
-To play see the ClouStack API client in action execute play-cloudstack:
-`ruby play-cloudstack`
-
-
+To play see the ClouStack API client in action and execute play-cloudstack:
+`ruby examples/play-cloudstack.rb`
 
 ***
 

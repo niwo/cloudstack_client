@@ -1,13 +1,9 @@
 #! /usr/bin/env ruby
 
-#########################################
-# playing around with the cloudstack
-# api, (C) 2012, Nik Wolfgramm
-#
-
 require 'yaml'
 require 'rainbow'
-require File.join(File.dirname(__FILE__), 'lib', 'ssh_command')
+require 'require_relative'
+require_relative '../lib/ssh_command'
 
 #########################################
 # defining helper functions
