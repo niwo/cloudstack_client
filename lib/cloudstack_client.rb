@@ -571,6 +571,7 @@ module CloudstackClient
     def list_projects
       params = {
           'command' => 'listProjects',
+          'listall' => 'true',
       }
       json = send_request(params)
       json['project'] || []
