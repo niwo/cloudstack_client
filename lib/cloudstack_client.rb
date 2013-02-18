@@ -422,6 +422,16 @@ module CloudstackClient
       json = send_request(params)
       json['network'] || []
     end
+    
+    def get_public_ip_address(ip_address, project_id)
+      params = {
+          'command' => 'listPublicIpAddresses',
+          'projectid' => project_id,
+          'ipaddress' => ip_address,
+      }
+      json = send_request(params)
+      json['publicipaddress'].first
+    end
 
     ##
     # Finds the zone with the specified name.
@@ -476,15 +486,15 @@ module CloudstackClient
     ##
     # Finds the public ip address for a given ip address string.
 
-    def get_public_ip_address(ip_address)
+    def get_public_ip_address(ip_address, project_id)
       params = {
           'command' => 'listPublicIpAddresses',
-          'ipaddress' => ip_address
+          'projectid' => project_id,
+          'ipaddress' => ip_address,
       }
       json = send_request(params)
       json['publicipaddress'].first
     end
-
 
     ##
     # Acquires and associates a public IP to an account.
@@ -511,6 +521,32 @@ module CloudstackClient
       }
       json = send_async_request(params)
       json['success']
+    end
+
+    ##
+    # Creates a port forwarding rule.
+
+    def create_firewall_rule(ip_adress_id, protocol, cidrlist, start_port=nil, end_port=nil, icmpcode=nil, icmptype=nil)
+      params = {
+          'command' => 'createFirewallRule',
+          'ipAddressId' => ip_address_id,
+          'cidrlist' => cidrlist,
+          'protocol' => protocol,
+      }
+      if protocol == 'icmp'
+        params.merge!({
+            'icmpcode' => icmpcode,
+            'icmptype' => icmptype,
+        })
+      end
+      if protocol == 'TCP' or protocol == 'UDP'
+        params.merge!({
+            'start_port' => start_port,
+            'end_port' => end_port,
+        })
+      end
+      json = send_async_request(params)
+      json['firewallrule']
     end
 
     ##

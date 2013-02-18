@@ -17,7 +17,17 @@ optparse = OptionParser.new do|opts|
   opts.on('-s', '--show-available-values', 'show available values') do
     cli_options[:show_available_values] = true
   end
-
+  
+  cli_options[:puppetmaster] = false
+  opts.on('-m', '--puppetmaster', 'puppetmaster') do
+    cli_options[:puppetmaster] = true
+  end
+  
+  cli_options[:puppetmaster_vip] = nil
+  opts.on('-v', '--puppetmaster-vip VIP', 'puppetmaster_vip') do |puppetmaster_vip|
+    cli_options[:puppetmaster_vip] = puppetmaster_vip
+  end
+  
   cli_options[:project] = nil
   opts.on('-p', '--project PROJECT', 'project') do |project|
     cli_options[:project] = project
@@ -33,9 +43,9 @@ optparse = OptionParser.new do|opts|
     cli_options[:compute] = compute_offering
   end
 
-  cli_options[:network] = nil
-  opts.on('-n', '--network-offering NETWORK_OFFERING', 'network offering') do |network_offering|
-    cli_options[:network] = network_offering
+  cli_options[:networks] = nil
+  opts.on('-n', '--network-offering NETWORKS', 'network') do |networks|
+    cli_options[:networks] = networks
   end
 
   cli_options[:zone] = nil
@@ -60,11 +70,9 @@ projects = Hash[*cs_connection.list_projects.collect {|project| [project['name']
 templates = cs_connection.list_templates('featured').collect{|template| template['name']}
 compute_offerings = cs_connection.list_service_offerings.collect{|template| template['name']}
 zones = cs_connection.list_zones.collect{|zone| zone['name']}
-network_offerings = {}
+networks = {}
 projects.each do |project_name, project_id|
-  network_offerings[project_name] = cs_connection.list_networks(project_id).collect do |network| 
-    network['name']
-  end
+  networks[project_name] = Hash[*cs_connection.list_networks(project_id).collect {|network| [network['name'], network['id']]}.flatten]
 end
 
 if cli_options[:show_available_values]
@@ -75,7 +83,7 @@ if cli_options[:show_available_values]
    puts "COMPUTE OFFERINGS:".color(:green)
    pp compute_offerings
    puts "NETWORK OFFERINGS:".color(:green)
-   pp network_offerings
+   pp networks
    puts "AVAILIBILITY ZONES:".color(:green)
    pp zones
   exit
@@ -87,53 +95,46 @@ if ARGV.empty?
 end
 server_name = ARGV[0]
 
+if cli_options[:puppetmaster]
+  unless cli_options[:puppetmaster_vip]
+    puts "Error: must provide puppetmaster_vip"
+    exit
+  end
+end
+
 server = cs_connection.create_server(
   server_name,
   cli_options[:compute],
   cli_options[:template],
   cli_options[:zone],
-  [cli_options[:network]],
+  cli_options[:networks].split(',').collect{|network| network.strip},
   projects[cli_options[:project]],
 )
 
 puts
 puts "Make sure the server is running...".color(:yellow)
-cs.wait_for_server_state(server["id"], "Running")
+cs_connection.wait_for_server_state(server["id"], "Running")
 puts "OK!".color(:green)
 
-puts
-puts "Get the fqdn of the server...".color(:yellow)
-server_fqdn = cs.get_server_fqdn(server)
-puts "fqdn is #{server_fqdn}".color(:green)
+if cli_options[:puppetmaster]
+  vip = cs_connection.get_public_ip_address(
+    cli_options[:puppetmaster_vip], 
+    projects[cli_options[:project]],
+  )
 
-puts
-puts "Associate an IP address on the CloudStack firewall for the server...".color(:yellow)
-ip_addr = cs.associate_ip_address(networks[network]["id"])
-puts
-puts "IP is #{ip_addr["ipaddress"]}".color(:green)
+  puts
+  puts "Create port forwarding rule for ssh access on the CloudStack firewall...".color(:yellow)
+  puts vip
+  cs_connection.create_port_forwarding_rule(vip["id"], 22, 'TCP', 22, server["id"])
+  puts
 
-puts
-puts "Create port forwarding rule for ssh access on the CloudStack firewall...".color(:yellow)
-cs.create_port_forwarding_rule(ip_addr["id"], 22, 'TCP', 22, server["id"])
-puts
+  server_connection = {
+    host: vip["ipaddress"], username: "root", password: "blahblah",
+  }
 
-puts
-puts "Create port forwarding rule for HTTP access on the CloudStack firewall...".color(:yellow)
-cs.create_port_forwarding_rule(ip_addr["id"], 80, 'TCP', 80, server["id"])
-puts
+  sleep 10
 
-puts
-puts "Install puppet client".color(:yellow)
-server_connection = { host: cs.get_server_default_nic(server)["ipaddress"], username: "root", password: "blahblah" }
-puts SshCommand.run(server_connection, "yum -y install puppet").color(:green)
-
-puts "Create a cert request on the client".color(:yellow)
-puts SshCommand.run(server_connection, "puppet agent --test --waitforcert=0").color(:green)
-
-puts "Sign request on puppetmaster"
-sign_output = %x[puppet cert --sign #{server_fqdn}]
-puts sign_output
-
-puts "Puppet should run now on #{server_name}:".color(:yellow)
-puts SshCommand.run(server_connection, "puppet agent --test").color(:green)
-puts
+  puts
+  puts "Provision puppetmaster".color(:yellow)
+  puts SshCommand.run(server_connection, "wget http://puppet.swisstxt.ch/provision_puppet.sh; sh provision_puppet.sh;").color(:green)
+end
