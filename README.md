@@ -1,19 +1,26 @@
 # cloudstack-client
 
-A ruby CloudStack API client by Nik Wolfgramm (<nik.wolfgramm@swisstxt.ch>) based on knife-cloudstack by Ryan Holmes (<rholmes@edmunds.com>), KC Braunschweig (<kcbraunschweig@gmail.com>)
-
-See [CloudStack API reference](http://download.cloud.com/releases/3.0.3/api_3.0.3/TOC_Domain_Admin.html)
+A ruby CloudStack API client.
 
 ## Installation
- - make sure you have a working ruby environment
- - install bundler `gem install bundler`
- - execute `bundle install` in order to install dependencies
- - copy the example config file `cp config/cloudstack.example.yml config/cloudstack.yml` and edit the CloudStack keys
 
-## Usage 
-To play see the ClouStack API client in action and execute play-cloudstack:
-`ruby examples/play-cloudstack.rb`
+Install the cloudstack-cli gem:
 
-***
+    $ gem install cloudstack-client
 
-Copyright (c) 2012, Nik Wolfgramm
+## References
+-  [Cloudstack API documentation](http://cloudstack.apache.org/docs/api/apidocs-4.2/TOC_Root_Admin.html)
+
+## Contributing
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
+
+## License
+
+Copyright (c) 2013, Nik Wolfgramm
+
+Released under the MIT License. See the [LICENSE](https://bitbucket.org/swisstxt/cloudstack-cli/raw/master/LICENSE.txt) file for further details.

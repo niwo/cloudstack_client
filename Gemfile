@@ -1,6 +1,4 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
-gem 'json'
-gem 'rainbow'
-gem 'net-ssh'
-gem "rbx-require-relative"
+# Specify your gem's dependencies in cloudstack-client.gemspec
+gemspec
