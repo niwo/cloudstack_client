@@ -1,4 +1,4 @@
-# cloudstack-client
+# cloudstack_client
 
 A ruby CloudStack API client.
 
@@ -6,7 +6,7 @@ A ruby CloudStack API client.
 
 Install the cloudstack-cli gem:
 
-    $ gem install cloudstack-client
+    $ gem install cloudstack_client
 
 ## References
 -  [Cloudstack API documentation](http://cloudstack.apache.org/docs/api/apidocs-4.2/TOC_Root_Admin.html)

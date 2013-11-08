@@ -1,4 +1,3 @@
-config/cloudstack.yml
 Gemfile.lock
 .bundle/*
 .bundle

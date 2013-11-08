@@ -1,2 +1,2 @@
-require "cloudstack-client/version"
-require "cloudstack-client/client"
+require "cloudstack_client/version"
+require "cloudstack_client/client"
