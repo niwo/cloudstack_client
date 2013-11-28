@@ -4,7 +4,7 @@ A ruby CloudStack API client.
 
 ## Installation
 
-Install the cloudstack-cli gem:
+Install the cloudstack_client gem:
 
     $ gem install cloudstack_client
 
@@ -23,4 +23,4 @@ Install the cloudstack-cli gem:
 
 Copyright (c) 2013, Nik Wolfgramm
 
-Released under the MIT License. See the [LICENSE](https://bitbucket.org/swisstxt/cloudstack-cli/raw/master/LICENSE.txt) file for further details.
+Released under the MIT License. See the [LICENSE](https://bitbucket.org/swisstxt/cloudstack_client/raw/master/LICENSE.txt) file for further details.
