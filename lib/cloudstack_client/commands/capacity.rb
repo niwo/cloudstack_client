@@ -9,11 +9,11 @@ module CloudstackClient
       params = {
         'command' => 'listCapacity',
       }
-      
-      if options[:zone]
-        zone = get_zone(options[:zone])
+
+      if args[:zone]
+        zone = get_zone(args[:zone])
         unless zone 
-          puts "Error: Zone #{options[:zone]} not found"
+          puts "Error: Zone #{args[:zone]} not found"
           exit 1
         end
         params['zoneid'] = zone['id']  

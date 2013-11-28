@@ -64,7 +64,38 @@ module CloudstackClient
         params['domainid'] = account["domainid"]
         params['account'] = args[:account]
       end
-      params['publickey'] = args[:public_key] if args[:public_key]
+      
+      json = send_request(params)['keypair']
+    end
+
+    ##
+    # Register ssh key pairs.
+    #
+
+    def register_ssh_key_pair(name, publickey, args = {})
+      params = {
+          'command' => 'registerSSHKeyPair',
+          'name' => name,
+          'publickey' => publickey
+      }
+      if args[:project]
+        project = get_project(args[:project])
+        unless project
+          puts "Error: project #{args[:project]} not found."
+          exit 1
+        end
+        params['projectid'] = project['id']
+      end
+
+      if args[:account]
+        account = list_accounts({name: args[:account]}).first
+        unless account
+          puts "Error: Account #{args[:account]} not found."
+          exit 1
+        end
+        params['domainid'] = account["domainid"]
+        params['account'] = args[:account]
+      end
       
       json = send_request(params)['keypair']
     end
