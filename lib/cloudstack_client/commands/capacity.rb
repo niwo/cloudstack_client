@@ -9,7 +9,16 @@ module CloudstackClient
       params = {
         'command' => 'listCapacity',
       }
-      params['zoneid'] = args[:zone_id] if args[:zone_id]
+      
+      if options[:zone]
+        zone = get_zone(options[:zone])
+        unless zone 
+          puts "Error: Zone #{options[:zone]} not found"
+          exit 1
+        end
+        params['zoneid'] = zone['id']  
+      end
+
       params['type'] = args[:type] if args[:type]
 
       json = send_request(params)
