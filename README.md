@@ -23,4 +23,4 @@ Install the cloudstack_client gem:
 
 Copyright (c) 2013, Nik Wolfgramm
 
-Released under the MIT License. See the [LICENSE](https://bitbucket.org/swisstxt/cloudstack_client/raw/master/LICENSE.txt) file for further details.
+Released under the MIT License. See the [LICENSE](https://raw.github.com/niwo/cloudstack_client/master/LICENSE.txt) file for further details.

@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["nik.wolfgramm@gmail.com"]
   gem.description   = %q{A ruby CloudStack API client}
   gem.summary       = %q{A ruby CloudStack API client}
-  gem.homepage      = "https://bitbucket.org/swisstxt/cloudstack_client"
+  gem.homepage      = "https://github.com/niwo/cloudstack_client"
   gem.license       = 'MIT'
 
   gem.required_ruby_version = '>= 1.9.3'
