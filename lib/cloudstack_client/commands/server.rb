@@ -236,8 +236,8 @@ module CloudstackClient
     # Stops the server with the specified name.
     #
 
-    def stop_server(name, forced=nil)
-      server = get_server(name)
+    def stop_server(name, forced=nil, project_id=nil)
+      server = get_server(name, project_id)
       if !server || !server['id']
         puts "Error: Virtual machine '#{name}' does not exist"
         exit 1
@@ -257,8 +257,8 @@ module CloudstackClient
     # Start the server with the specified name.
     #
 
-    def start_server(name)
-      server = get_server(name)
+    def start_server(name, project_id=nil)
+      server = get_server(name, project_id)
       if !server || !server['id']
         puts "Error: Virtual machine '#{name}' does not exist"
         exit 1
@@ -277,8 +277,8 @@ module CloudstackClient
     # Reboot the server with the specified name.
     #
 
-    def reboot_server(name)
-      server = get_server(name)
+    def reboot_server(name, project_id=nil)
+      server = get_server(name, project_id)
       if !server || !server['id']
         puts "Error: Virtual machine '#{name}' does not exist"
         exit 1
