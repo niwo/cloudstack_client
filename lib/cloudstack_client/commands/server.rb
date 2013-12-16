@@ -244,7 +244,7 @@ module CloudstackClient
     # Stops the server with the specified name.
     #
 
-    def stop_server(name, args = {async: true})
+    def stop_server(name, args = {})
       server = get_server(name, args)
       if !server || !server['id']
         puts "Error: Virtual machine '#{name}' does not exist"
@@ -256,7 +256,7 @@ module CloudstackClient
           'id' => server['id']
       }
       params['forced'] = true if args[:forced]
-
+      args[:async] = true unless args[:async] == false
       args[:async] ? send_async_request(params)['virtualmachine'] : send_request(params)
     end
 
@@ -264,7 +264,7 @@ module CloudstackClient
     # Start the server with the specified name.
     #
 
-    def start_server(name, args = {async: true})
+    def start_server(name, args = {})
       server = get_server(name, args)
       if !server || !server['id']
         puts "Error: Virtual machine '#{name}' does not exist"
@@ -275,7 +275,7 @@ module CloudstackClient
           'command' => 'startVirtualMachine',
           'id' => server['id']
       }
-
+      args[:async] = true unless args[:async] == false
       args[:async] ? send_async_request(params)['virtualmachine'] : send_request(params)
     end
 
@@ -283,7 +283,7 @@ module CloudstackClient
     # Reboot the server with the specified name.
     #
 
-    def reboot_server(name, args = {async: true})
+    def reboot_server(name, args = {})
       server = get_server(name, args)
       if !server || !server['id']
         puts "Error: Virtual machine '#{name}' does not exist"
@@ -294,7 +294,7 @@ module CloudstackClient
           'command' => 'rebootVirtualMachine',
           'id' => server['id']
       }
-
+      args[:async] = true unless args[:async] == false
       args[:async] ? send_async_request(params)['virtualmachine'] : send_request(params)
     end
 
