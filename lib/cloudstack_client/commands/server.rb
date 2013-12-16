@@ -93,7 +93,7 @@ module CloudstackClient
     end
 
     ##
-    # Lists all the servers in your account.
+    # Lists servers.
 
     def list_servers(options = {})
       params = {
@@ -101,6 +101,8 @@ module CloudstackClient
         'listAll' => true
       }
       params['projectid'] = options[:project_id] if options[:project_id]
+      params['state'] = options[:status] if options[:status]
+      params['groupid'] = options[:group_id] if options[:group_id]
 
       if options[:zone]
         zone = get_zone(options[:zone])
