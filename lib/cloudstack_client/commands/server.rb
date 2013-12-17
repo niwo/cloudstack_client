@@ -8,6 +8,7 @@ module CloudstackClient
     def get_server(name, args = {})
       params = {
           'command' => 'listVirtualMachines',
+          'listAll' => true,
           'name' => name
       }
       params['projectid'] = args[:project_id] if args[:project_id]
@@ -258,8 +259,7 @@ module CloudstackClient
           'id' => server['id']
       }
       params['forced'] = true if args[:forced]
-      args[:async] = true unless args[:async] == false
-      args[:async] ? send_async_request(params)['virtualmachine'] : send_request(params)
+      args[:sync] ? send_request(params) : send_async_request(params)['virtualmachine']
     end
 
     ##
@@ -277,8 +277,7 @@ module CloudstackClient
           'command' => 'startVirtualMachine',
           'id' => server['id']
       }
-      args[:async] = true unless args[:async] == false
-      args[:async] ? send_async_request(params)['virtualmachine'] : send_request(params)
+      args[:sync] ? send_request(params) : send_async_request(params)['virtualmachine']
     end
 
     ##
@@ -296,8 +295,7 @@ module CloudstackClient
           'command' => 'rebootVirtualMachine',
           'id' => server['id']
       }
-      args[:async] = true unless args[:async] == false
-      args[:async] ? send_async_request(params)['virtualmachine'] : send_request(params)
+      args[:sync] ? send_request(params) : send_async_request(params)['virtualmachine']
     end
 
     ##
@@ -309,7 +307,6 @@ module CloudstackClient
           'command' => 'destroyVirtualMachine',
           'id' => id
       }
-
       async ? send_async_request(params)['virtualmachine'] : send_request(params)
     end
   
