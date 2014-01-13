@@ -68,12 +68,14 @@ module CloudstackClient
 
     def list_networks(args = {})
       params = {
-        'command' => 'listNetworks',
-        'listall' => true,
+        'command' => 'listNetworks'
       }
+      
+      params['listall'] = true unless args[:isdefault]
+      params['isDefault'] = true if args[:isdefault]
+      
       params['projectid'] = args[:project_id] if args[:project_id]
       params['zoneid'] = args[:zone_id] if args[:zone_id]
-      params['isDefault'] = true if args[:isdefault]
       if args[:account]
         domain = list_accounts(name: args[:account])
         if domain.size > 0
