@@ -14,7 +14,7 @@ module CloudstackClient
       params['projectid'] = args[:project_id] if args[:project_id]
 
       if args[:account]
-        if account = list_accounts({name: args[:account]}).first
+        if account = list_accounts(name: args[:account]).first
           params['domainid'] = account["domainid"]
           params['account'] = args[:account]
         end
@@ -96,28 +96,28 @@ module CloudstackClient
     ##
     # Lists servers.
 
-    def list_servers(options = {})
+    def list_servers(args = {})
       params = {
         'command' => 'listVirtualMachines',
         'listAll' => true
       }
-      params['projectid'] = options[:project_id] if options[:project_id]
-      params['state'] = options[:status] if options[:status]
-      params['groupid'] = options[:group_id] if options[:group_id]
+      params['projectid'] = args[:project_id] if args[:project_id]
+      params['state'] = args[:status] if args[:status]
+      params['groupid'] = args[:group_id] if args[:group_id]
 
-      if options[:zone]
-        zone = get_zone(options[:zone])
+      if args[:zone]
+        zone = get_zone(args[:zone])
         unless zone 
-          puts "Error: Zone #{options[:zone]} not found"
+          puts "Error: Zone #{args[:zone]} not found"
           exit 1
         end
         params['zoneid'] = zone['id']  
       end
 
-      if options[:account]
-        if account = list_accounts({name: options[:account]}).first
+      if args[:account]
+        if account = list_accounts(name: args[:account]).first
           params['domainid'] = account["domainid"]
-          params['account'] = options[:account]
+          params['account'] = args[:account]
         end
       end
 

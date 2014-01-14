@@ -14,7 +14,7 @@ module CloudstackClient
       params['listall'] = true if args[:listall]
       
       if args[:account]
-        account = list_accounts({name: args[:account]}).first
+        account = list_accounts(name: args[:account]).first
         unless account
           puts "Error: Account #{args[:account]} not found."
           exit 1
