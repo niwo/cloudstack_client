@@ -1,5 +1,7 @@
 # cloudstack_client
 
+[![Gem Version](https://badge.fury.io/rb/cloudstack_client.png)](http://badge.fury.io/rb/cloudstack_client)
+
 A ruby CloudStack API client.
 
 ## Installation
