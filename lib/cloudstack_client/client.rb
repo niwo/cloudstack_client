@@ -83,11 +83,11 @@ module CloudstackClient
       else
         begin 
           json = JSON.parse(response.body)
-          puts "Error executing command:"
-          puts "#{json['errorresponse']['errortext']} - #{json['errorresponse']['errorcode']}"
+          puts "Error executing command."
+          puts "#{json['errorresponse']['errorcode']}: #{json['errorresponse']['errortext']}"
         rescue JSON::ParserError
-          puts "Error parsing response from server:"
-          puts "#{response.code} - #{response.body}"
+          puts "Error parsing response from server."
+          puts "#{response.code}: #{response.body}"
         end
         exit 3
       end
