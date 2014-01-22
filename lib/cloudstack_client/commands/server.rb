@@ -14,10 +14,13 @@ module CloudstackClient
       params['projectid'] = args[:project_id] if args[:project_id]
 
       if args[:account]
-        if account = list_accounts(name: args[:account]).first
-          params['domainid'] = account["domainid"]
-          params['account'] = args[:account]
+        account = list_accounts({name: args[:account]}).first
+        unless account
+          puts "Error: Account #{args[:account]} not found."
+          exit 1
         end
+        params['domainid'] = account["domainid"]
+        params['account'] = args[:account]
       end
 
       json = send_request(params)
@@ -115,10 +118,13 @@ module CloudstackClient
       end
 
       if args[:account]
-        if account = list_accounts(name: args[:account]).first
-          params['domainid'] = account["domainid"]
-          params['account'] = args[:account]
+        account = list_accounts({name: args[:account]}).first
+        unless account
+          puts "Error: Account #{args[:account]} not found."
+          exit 1
         end
+        params['domainid'] = account["domainid"]
+        params['account'] = args[:account]
       end
 
       json = send_request(params)

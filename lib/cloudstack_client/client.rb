@@ -26,7 +26,6 @@ module CloudstackClient
       @api_url = api_url
       @api_key = api_key
       @secret_key = secret_key
-      @use_ssl = api_url.start_with? "https"
       @verbose = opts[:quiet] ? false : true
       @debug = opts[:debug] ? true : false
     end
@@ -57,8 +56,11 @@ module CloudstackClient
 
       uri = URI.parse(url)
       http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = @use_ssl
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      
+      if uri.scheme == 'https'
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      end
 
       begin
         response = http.request(Net::HTTP::Get.new(uri.request_uri))
@@ -68,22 +70,27 @@ module CloudstackClient
         exit 1
       end
 
-      if response.is_a?(Net::HTTPOK)
+      
+      if response.is_a? Net::HTTPOK
         begin 
           json = JSON.parse(response.body)
           json[params['command'].downcase + 'response']
         rescue JSON::ParserError
-          puts "Error parsing response from server."
-          exit 1
+          puts "Error parsing response from server:"
+          puts response.body
+          exit 2
         end
-      elsif response.is_a?(Net::HTTPUnauthorized)
-        puts "Error #{response.code}: #{response.message}"
-        exit 2
       else
-        puts "Error #{response.code}: #{response.message}"
-        puts JSON.pretty_generate(JSON.parse(response.body))
-        puts "URL: #{url}"
-        exit 1
+        begin 
+          json = JSON.parse(response.body)
+          puts "Error executing command."
+          puts "Errorcode: #{json['errorresponse']['errorcode']}"
+          puts "Errorcode: #{json['errorresponse']['errortext']}"
+        rescue JSON::ParserError
+          puts "Error parsing response from server:"
+          puts "#{response.code}: #{response.body}"
+        end
+        exit 3
       end
     end
 
