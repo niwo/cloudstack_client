@@ -23,7 +23,7 @@ module CloudstackClient
       params['name'] = args[:name] if args[:name]
   
       json = send_request(params)
-      json['pool'] || []
+      json['storagepool'] || []
     end
 
 	end
