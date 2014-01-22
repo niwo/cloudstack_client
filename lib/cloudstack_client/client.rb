@@ -68,20 +68,23 @@ module CloudstackClient
         exit 1
       end
 
-      if !response.is_a?(Net::HTTPOK)
+      if response.is_a?(Net::HTTPOK)
+        begin 
+          json = JSON.parse(response.body)
+          json[params['command'].downcase + 'response']
+        rescue JSON::ParserError
+          puts "Error parsing response from server."
+          exit 1
+        end
+      elsif response.is_a?(Net::HTTPUnauthorized)
+        puts "Error #{response.code}: #{response.message}"
+        exit 2
+      else
         puts "Error #{response.code}: #{response.message}"
         puts JSON.pretty_generate(JSON.parse(response.body))
         puts "URL: #{url}"
         exit 1
       end
-
-      begin 
-        json = JSON.parse(response.body)
-      rescue JSON::ParserError
-        puts "Error parsing response from server."
-        exit 1
-      end
-      json[params['command'].downcase + 'response']
     end
 
     ##

@@ -12,6 +12,15 @@ module CloudstackClient
       }
       params['name'] = args[:name] if args[:name]
 
+      if args[:zone]
+        zone = get_zone(args[:zone])
+        unless zone 
+          puts "Error: Zone #{args[:zone]} not found"
+          exit 1
+        end
+        params['zoneid'] = zone['id']  
+      end
+
       if args[:project]
         project = get_project(args[:project])
         unless project
@@ -20,6 +29,7 @@ module CloudstackClient
         end
         params['projectid'] = project['id']
       end
+
       if args[:account]
         account = list_accounts({name: args[:account]}).first
         unless account
@@ -29,6 +39,7 @@ module CloudstackClient
         params['domainid'] = account["domainid"]
         params['account'] = args[:account]
       end
+
       params['listall'] = args[:listall] if args[:listall]
 
       json = send_request(params)
