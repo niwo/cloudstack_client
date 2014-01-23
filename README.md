@@ -11,7 +11,7 @@ Install the cloudstack_client gem:
     $ gem install cloudstack_client
 
 ## References
--  [Cloudstack API documentation](http://cloudstack.apache.org/docs/api/)
+-  [Apache CloudStack API documentation](http://cloudstack.apache.org/docs/api/)
 
 ## Contributing
 
