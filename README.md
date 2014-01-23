@@ -2,7 +2,7 @@
 
 [![Gem Version](https://badge.fury.io/rb/cloudstack_client.png)](http://badge.fury.io/rb/cloudstack_client)
 
-A ruby CloudStack API client.
+A CloudStack API client written in Ruby.
 
 ## Installation
 
@@ -11,7 +11,7 @@ Install the cloudstack_client gem:
     $ gem install cloudstack_client
 
 ## References
--  [Cloudstack API documentation](http://cloudstack.apache.org/docs/api/apidocs-4.2/TOC_Root_Admin.html)
+-  [Cloudstack API documentation](http://cloudstack.apache.org/docs/api/)
 
 ## Contributing
 
@@ -23,6 +23,6 @@ Install the cloudstack_client gem:
 
 ## License
 
-Copyright (c) 2013, Nik Wolfgramm
+Copyright (c) 2014, Nik Wolfgramm
 
 Released under the MIT License. See the [LICENSE](https://raw.github.com/niwo/cloudstack_client/master/LICENSE.txt) file for further details.
