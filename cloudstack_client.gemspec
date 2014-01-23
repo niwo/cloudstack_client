@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = CloudstackClient::VERSION
   gem.authors       = ["Nik Wolfgramm"]
   gem.email         = ["nik.wolfgramm@gmail.com"]
-  gem.description   = %q{A ruby CloudStack API client}
-  gem.summary       = %q{A ruby CloudStack API client}
+  gem.description   = %q{CloudStack API client written in Ruby}
+  gem.summary       = %q{CloudStack API client written in Ruby}
   gem.homepage      = "https://github.com/niwo/cloudstack_client"
   gem.license       = 'MIT'
 
@@ -20,5 +20,5 @@ Gem::Specification.new do |gem|
   gem.rdoc_options  = %w[--line-numbers --inline-source]
 
   gem.add_development_dependency('rdoc')
-  gem.add_development_dependency('rake', '~> 10.0.4')
+  gem.add_development_dependency('rake', '~> 10.0', '>= 10.0.4')
 end
