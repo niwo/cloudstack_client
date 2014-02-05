@@ -74,7 +74,7 @@ module CloudstackClient
       if response.is_a? Net::HTTPOK
         begin 
           json = JSON.parse(response.body)
-          json[params['command'].downcase + 'response']
+          json = json[params['command'].downcase + 'response']
         rescue JSON::ParserError
           puts "Error parsing response from server:"
           puts response.body
@@ -85,8 +85,9 @@ module CloudstackClient
           json = JSON.parse(response.body)
           puts "Error executing command."
           puts json if @debug
+          json = json[params['command'].downcase + 'response']
           puts "#{json['errorresponse']['errorcode']}: #{json['errorresponse']['errortext']}"
-        rescue JSON::ParserError
+        rescue
           puts "Error parsing response from server."
           puts "#{response.code}: #{response.body}"
         end
