@@ -86,7 +86,7 @@ module CloudstackClient
           puts "Error executing command."
           puts json if @debug
           json = json[params['command'].downcase + 'response']
-          puts "#{json['errorresponse']['errorcode']}: #{json['errorresponse']['errortext']}"
+          puts "#{json['errorcode']}: #{json['errortext']}"
         rescue
           puts "Error parsing response from server."
           puts "#{response.code}: #{response.body}"
