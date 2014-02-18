@@ -9,6 +9,21 @@ A CloudStack API client written in Ruby.
 Install the cloudstack_client gem:
 
     $ gem install cloudstack_client
+    
+## Usage
+
+    require "cloudstack_client"
+    
+    cs = CloudstackClient::Connection.new(
+      'https://cloudstack.int/client/api',
+      'API_KEY',
+      'API_SECRET'
+    )
+     
+    cs.list_servers.each do |server|
+      puts server['name']
+    end
+    
 
 ## References
 -  [Apache CloudStack API documentation](http://cloudstack.apache.org/docs/api/)
