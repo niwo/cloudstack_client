@@ -53,11 +53,12 @@ module CloudstackClient
     ##
     # Acquires and associates a public IP to an account.
 
-    def associate_ip_address(network_id)
+    def associate_ip_address(network_id, project_id = nil)
       params = {
           'command' => 'associateIpAddress',
           'networkid' => network_id
       }
+      params['projectid'] = project_id if project_id
 
       json = send_async_request(params)
       json['ipaddress']
