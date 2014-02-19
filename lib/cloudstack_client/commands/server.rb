@@ -189,7 +189,10 @@ module CloudstackClient
       params['name'] = args[:name] if args[:name]
 
       if args[:name]
-        if get_server(args[:name])
+        server = params['projectid'] ? 
+          get_server(args[:name], project_id: params['projectid']) :
+          get_server(args[:name])
+        if server 
           puts "Error: Server '#{args[:name]}' already exists."
           exit 1
         end
