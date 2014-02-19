@@ -4,7 +4,7 @@ module CloudstackClient
 
 		##
     # Lists all volumes.
-
+    
     def list_volumes(args = {})
       params = {
           'command' => 'listVolumes',
@@ -40,6 +40,10 @@ module CloudstackClient
       params['type'] = args[:type] if args[:type]
       params['keyword'] = args[:keyword] if args[:keyword]
       params['name'] = args[:name] if args[:name]
+      params['virtualmachineid'] = args[:virtual_machine_id] if args[:virtual_machine_id]
+      params['tags'] = args[:tags] if args[:tags]
+      params['podid'] = args[:pod_id] if args[:pod_id]
+      params['isrecursive'] = args[:is_recursive] if args[:is_recursive]
   
       json = send_request(params)
       json['volume'] || []

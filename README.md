@@ -16,12 +16,12 @@ Install the cloudstack_client gem:
 require "cloudstack_client"
     
 cs = CloudstackClient::Connection.new(
-  'https://cloudstack.int/client/api',
+  'https://cloudstack.url/client/api',
   'API_KEY',
   'API_SECRET'
 )
      
-cs.list_servers(state: 'running').each do |server|
+cs.list_servers(status: 'running').each do |server|
   puts server['name']
 end
 ```    

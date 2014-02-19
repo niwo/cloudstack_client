@@ -13,6 +13,8 @@ module CloudstackClient
       }
       params['projectid'] = args[:project_id] if args[:project_id]
 
+
+      params['domainid'] = args[:domain_id] if args[:domain_id]
       if args[:account]
         account = list_accounts({name: args[:account]}).first
         unless account
