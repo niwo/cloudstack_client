@@ -159,92 +159,7 @@ module CloudstackClient
     # Deploys a new server using the specified parameters.
 
     def create_server(args = {})
-      if args[:name]
-        if get_server(args[:name])
-          puts "Error: Server '#{args[:name]}' already exists."
-          exit 1
-        end
-      end
-
-      service = get_service_offering(args[:offering])
-      if !service
-        puts "Error: Service offering '#{args[:offering]}' is invalid"
-        exit 1
-      end
-
-      if args[:template]
-        template = get_template(args[:template])
-        if !template
-          puts "Error: Template '#{args[:template]}' is invalid"
-          exit 1
-        end
-      end
-
-      if args[:disk_offering]
-        disk_offering = get_disk_offering(args[:disk_offering])
-        unless disk_offering
-          msg = "Disk offering '#{args[:disk_offering]}' is invalid"
-          puts "Error: #{msg}"
-          exit 1
-        end
-      end
-
-      if args[:iso]
-        iso = get_iso(args[:iso])
-        unless iso
-          puts "Error: Iso '#{args[:iso]}' is invalid"
-          exit 1
-        end
-        unless disk_offering
-          puts "Error: a disk offering is required when using iso"
-          exit 1
-        end
-      end
-
-      if !template && !iso
-        puts "Error: Iso or Template is required"
-        exit 1
-      end
-
-      zone = args[:zone] ? get_zone(args[:zone]) : get_default_zone
-      if !zone
-        msg = args[:zone] ? "Zone '#{args[:zone]}' is invalid" : "No default zone found"
-        puts "Error: #{msg}"
-        exit 1
-      end
-
-      networks = []
-      if args[:networks]
-        args[:networks].each do |name|
-          network = project ? get_network(name, project['id']) : get_network(name)
-          if !network
-            puts "Error: Network '#{name}' not found"
-            exit 1
-          end
-          networks << network
-        end
-      end
-      if networks.empty?
-        networks << get_default_network
-      end
-      if networks.empty?
-        puts "No default network found"
-        exit 1
-      end
-      network_ids = networks.map { |network|
-        network['id']
-      }
-
-      params = {
-          'command' => 'deployVirtualMachine',
-          'serviceOfferingId' => service['id'],
-          'templateId' => template ? template['id'] : iso['id'],
-          'zoneId' => zone['id'],
-          'networkids' => network_ids.join(',')
-      }
-      params['name'] = args[:name] if args[:name]
-      params['diskofferingid'] = disk_offering['id'] if disk_offering
-      params['hypervisor'] = (args[:hypervisor] || 'vmware') if iso
+      params = {'command' => 'deployVirtualMachine'}
       params['keypair'] = args[:keypair] if args[:keypair]
       params['size'] = args[:disk_size] if args[:disk_size]
       params['group'] = args[:group] if args[:group]
@@ -271,6 +186,89 @@ module CloudstackClient
       elsif args[:project_id]
         params['projectid'] = args[:project_id]
       end
+      params['name'] = args[:name] if args[:name]
+
+      if args[:name]
+        if get_server(args[:name])
+          puts "Error: Server '#{args[:name]}' already exists."
+          exit 1
+        end
+      end
+
+      networks = []
+      if args[:networks]
+        args[:networks].each do |name|
+          network = defined?(project) ? get_network(name, project['id']) : get_network(name)
+          if !network
+            puts "Error: Network '#{name}' not found"
+            exit 1
+          end
+          networks << network
+        end
+      end
+      if networks.empty?
+        networks << get_default_network
+      end
+      if networks.empty?
+        puts "No default network found"
+        exit 1
+      end
+      network_ids = networks.map { |network|
+        network['id']
+      }
+      params['networkids'] = network_ids.join(',')
+
+      service = get_service_offering(args[:offering])
+      if !service
+        puts "Error: Service offering '#{args[:offering]}' is invalid"
+        exit 1
+      end
+      params['serviceOfferingId'] = service['id']
+
+      if args[:template]
+        template = get_template(args[:template])
+        if !template
+          puts "Error: Template '#{args[:template]}' is invalid"
+          exit 1
+        end
+      end
+
+      if args[:disk_offering]
+        disk_offering = get_disk_offering(args[:disk_offering])
+        unless disk_offering
+          msg = "Disk offering '#{args[:disk_offering]}' is invalid"
+          puts "Error: #{msg}"
+          exit 1
+        end
+        params['diskofferingid'] = disk_offering['id']
+      end
+
+      if args[:iso]
+        iso = get_iso(args[:iso])
+        unless iso
+          puts "Error: Iso '#{args[:iso]}' is invalid"
+          exit 1
+        end
+        unless disk_offering
+          puts "Error: a disk offering is required when using iso"
+          exit 1
+        end
+        params['hypervisor'] = (args[:hypervisor] || 'vmware')
+      end
+
+      if !template && !iso
+        puts "Error: Iso or Template is required"
+        exit 1
+      end
+      params['templateId'] = template ? template['id'] : iso['id']
+
+      zone = args[:zone] ? get_zone(args[:zone]) : get_default_zone
+      if !zone
+        msg = args[:zone] ? "Zone '#{args[:zone]}' is invalid" : "No default zone found"
+        puts "Error: #{msg}"
+        exit 1
+      end
+      params['zoneid'] = zone['id']
 
       args[:sync] ? send_request(params) : send_async_request(params)['virtualmachine']
     end
