@@ -11,8 +11,6 @@ module CloudstackClient
           'listAll' => true,
           'name' => name
       }
-      params['projectid'] = args[:project_id] if args[:project_id]
-
 
       params['domainid'] = args[:domain_id] if args[:domain_id]
       if args[:account]
@@ -23,6 +21,18 @@ module CloudstackClient
         end
         params['domainid'] = account["domainid"]
         params['account'] = args[:account]
+      end
+
+      if args[:project]
+        project = get_project(args[:project])
+        if !project
+          msg = "Project '#{args[:project]}' is invalid"
+          puts "Error: #{msg}"
+          exit 1
+        end
+        params['projectid'] = project['id']
+      elsif args[:project_id]
+        params['projectid'] = args[:project_id]
       end
 
       json = send_request(params)
@@ -106,7 +116,7 @@ module CloudstackClient
         'command' => 'listVirtualMachines',
         'listAll' => true
       }
-      params['projectid'] = args[:project_id] if args[:project_id]
+      params['state'] = args[:state] if args[:state]
       params['state'] = args[:status] if args[:status]
       params['groupid'] = args[:group_id] if args[:group_id]
 
@@ -127,6 +137,18 @@ module CloudstackClient
         end
         params['domainid'] = account["domainid"]
         params['account'] = args[:account]
+      end
+
+      if args[:project]
+        project = get_project(args[:project])
+        if !project
+          msg = "Project '#{args[:project]}' is invalid"
+          puts "Error: #{msg}"
+          exit 1
+        end
+        params['projectid'] = project['id']
+      elsif args[:project_id]
+        params['projectid'] = args[:project_id]
       end
 
       json = send_request(params)
@@ -191,15 +213,6 @@ module CloudstackClient
         exit 1
       end
 
-      if args[:project]
-        project = get_project(args[:project])
-        if !project
-          msg = "Project '#{args[:project]}' is invalid"
-          puts "Error: #{msg}"
-          exit 1
-        end
-      end
-
       networks = []
       if args[:networks]
         args[:networks].each do |name|
@@ -230,7 +243,6 @@ module CloudstackClient
           'networkids' => network_ids.join(',')
       }
       params['name'] = args[:name] if args[:name]
-      params['projectid'] = project['id'] if project
       params['diskofferingid'] = disk_offering['id'] if disk_offering
       params['hypervisor'] = (args[:hypervisor] || 'vmware') if iso
       params['keypair'] = args[:keypair] if args[:keypair]
@@ -246,6 +258,18 @@ module CloudstackClient
         end
         params['domainid'] = account["domainid"]
         params['account'] = args[:account]
+      end
+
+      if args[:project]
+        project = get_project(args[:project])
+        if !project
+          msg = "Project '#{args[:project]}' is invalid"
+          puts "Error: #{msg}"
+          exit 1
+        end
+        params['projectid'] = project['id']
+      elsif args[:project_id]
+        params['projectid'] = args[:project_id]
       end
 
       args[:sync] ? send_request(params) : send_async_request(params)['virtualmachine']
