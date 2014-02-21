@@ -8,7 +8,9 @@ A CloudStack API client written in Ruby.
 
 Install the cloudstack_client gem:
 
-    $ gem install cloudstack_client
+```bash
+$ gem install cloudstack_client
+```
     
 ## Usage
 
