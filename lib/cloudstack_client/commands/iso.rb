@@ -59,6 +59,18 @@ module CloudstackClient
       nil
     end
 
+    ##
+    # Detaches any ISO file (if any) currently attached to a virtual machine.
+
+    def detach_iso(vm_id, args = {})
+      params = {
+          'command' => 'detachIso',
+          'virtualmachineid' => vm_id
+      }
+      json = send_request(params)
+      args[:sync] ? send_request(params) : send_async_request(params)['virtualmachine']
+    end    
+
 	end
 
 end
