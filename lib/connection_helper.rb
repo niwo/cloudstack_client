@@ -3,7 +3,7 @@ module CloudstackClient
     def self.load_configuration(config_file)
       begin
         return YAML::load(IO.read(config_file))
-      rescue Exception => e
+      rescue => e
         puts "Unable to load '#{config_file}' : #{e}"
         exit
       end

@@ -13,13 +13,6 @@ module CloudstackClient
     @@async_poll_interval = 2.0
     @@async_timeout = 400
 
-    # include all commands
-    Dir.glob(File.dirname(__FILE__) + "/commands/*.rb").each do |file| 
-      require file
-      module_name = File.basename(file, '.rb').split('_').map{|f| f.capitalize}.join
-      include Object.const_get("CloudstackClient").const_get(module_name)
-    end
-
     attr_accessor :verbose
 
     def initialize(api_url, api_key, secret_key, opts = {})
@@ -28,6 +21,19 @@ module CloudstackClient
       @secret_key = secret_key
       @verbose = opts[:quiet] ? false : true
       @debug = opts[:debug] ? true : false
+      CloudstackClient::Connection.include_commands unless opts[:no_commands]
+    end
+
+    ##
+    # Loads all commands from the commands subdirectory and includes them
+    #
+
+    def self.include_commands
+      Dir.glob(File.dirname(__FILE__) + "/commands/*.rb").each do |file| 
+        require file
+        module_name = File.basename(file, '.rb').split('_').map{|f| f.capitalize}.join
+        include Object.const_get("CloudstackClient").const_get(module_name)
+      end
     end
 
     ##
@@ -70,7 +76,6 @@ module CloudstackClient
         exit 1
       end
 
-      
       if response.is_a? Net::HTTPOK
         begin 
           json = JSON.parse(response.body)
