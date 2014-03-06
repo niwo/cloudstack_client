@@ -22,10 +22,10 @@ module CloudstackClient
 
     desc "generate", "generate api commands using the Cloudstack API Discovery service"
     def generate
-      say json = client.send_request('command' => 'listApis')
-      commands = ['apis'] || []
+      json = client.send_request('command' => 'listApis')
+      commands = json['api'] || []
       commands.each do |command|
-        say command['name']
+        puts "#{command['name']} : #{command['related']}"
       end
     end
 
