@@ -119,6 +119,7 @@ module CloudstackClient
       params['state'] = args[:state] if args[:state]
       params['state'] = args[:status] if args[:status]
       params['groupid'] = args[:group_id] if args[:group_id]
+      params['keyword'] = args[:keyword] if args[:keyword]
 
       if args[:zone]
         zone = get_zone(args[:zone])
