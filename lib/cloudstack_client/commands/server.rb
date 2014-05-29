@@ -189,9 +189,7 @@ module CloudstackClient
       params['name'] = args[:name] if args[:name]
 
       if args[:name]
-        server = params['projectid'] ? 
-          get_server(args[:name], project_id: params['projectid']) :
-          get_server(args[:name])
+        server = get_server(args[:name], project_id: params['projectid'])
         if server 
           puts "Error: Server '#{args[:name]}' already exists."
           exit 1
@@ -201,7 +199,7 @@ module CloudstackClient
       networks = []
       if args[:networks]
         args[:networks].each do |name|
-          network = defined?(project) ? get_network(name, project['id']) : get_network(name)
+          network = get_network(name, params['projectid'])
           if !network
             puts "Error: Network '#{name}' not found"
             exit 1
@@ -217,7 +215,6 @@ module CloudstackClient
         networks << default_network
       end
       network_ids = networks.map { |network|
-        puts network
         network['id']
       }
       params['networkids'] = network_ids.join(',')
