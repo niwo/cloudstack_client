@@ -335,10 +335,11 @@ module CloudstackClient
     # Destroy the server with the specified name.
     #
 
-    def destroy_server(id, async = true)
+    def destroy_server(id, async = true, expunge = false)
       params = {
           'command' => 'destroyVirtualMachine',
-          'id' => id
+          'id' => id,
+          'expunge' => expunge ? true : false
       }
       async ? send_async_request(params)['virtualmachine'] : send_request(params)
     end
