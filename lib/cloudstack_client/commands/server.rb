@@ -210,13 +210,14 @@ module CloudstackClient
         end
       end
       if networks.empty?
-        networks << get_default_network
-      end
-      if networks.empty?
-        puts "No default network found"
-        exit 1
+        unless default_network = get_default_network
+          puts "Error: No default network found"
+          exit 1
+        end
+        networks << default_network
       end
       network_ids = networks.map { |network|
+        puts network
         network['id']
       }
       params['networkids'] = network_ids.join(',')
