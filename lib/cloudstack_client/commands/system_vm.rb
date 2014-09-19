@@ -23,7 +23,7 @@ module CloudstackClient
       params['podid'] = args[:podid] if args[:podid]
 
       json = send_request(params)
-      json['system_vm'] || []
+      json['systemvm'] || []
     end
 
   end
