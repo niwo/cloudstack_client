@@ -5,7 +5,7 @@ module CloudstackClient
     ##
     # List resource limits.
 
-    def list_resource_limit(args = {})
+    def list_resource_limits(args = {})
       params = {
         'command' => 'listResourceLimits',
       }
