@@ -34,8 +34,8 @@ module CloudstackClient
 
       params['type'] = args[:type] if args[:type]
 
-      puts json = send_request(params)
-      json['resource_limit'] || []
+      json = send_request(params)
+      json['resourcelimit'] || []
     end
 
   end
