@@ -14,13 +14,14 @@ module CloudstackClient
     @@async_timeout = 400
 
     # include all commands
-    Dir.glob(File.dirname(__FILE__) + "/commands/*.rb").each do |file| 
+    Dir.glob(File.dirname(__FILE__) + "/commands/*.rb").each do |file|
       require file
       module_name = File.basename(file, '.rb').split('_').map{|f| f.capitalize}.join
       include Object.const_get("CloudstackClient").const_get(module_name)
     end
 
     attr_accessor :verbose
+    attr_accessor :debug
 
     def initialize(api_url, api_key, secret_key, opts = {})
       @api_url = api_url
@@ -56,7 +57,7 @@ module CloudstackClient
 
       uri = URI.parse(url)
       http = Net::HTTP.new(uri.host, uri.port)
-      
+
       if uri.scheme == 'https'
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -70,9 +71,9 @@ module CloudstackClient
         exit 1
       end
 
-      
+
       if response.is_a? Net::HTTPOK
-        begin 
+        begin
           json = JSON.parse(response.body)
           json = json[params['command'].downcase + 'response']
         rescue JSON::ParserError
@@ -81,7 +82,7 @@ module CloudstackClient
           exit 2
         end
       else
-        begin 
+        begin
           json = JSON.parse(response.body)
           puts "Error executing command..."
           puts json if @debug
@@ -137,7 +138,7 @@ module CloudstackClient
 
     def debug_output(output, seperator = '-' * 80)
       puts
-      puts seperator 
+      puts seperator
       puts output
       puts seperator
       puts
