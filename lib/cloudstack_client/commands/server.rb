@@ -63,7 +63,7 @@ module CloudstackClient
     def wait_for_server_state(id, state)
       while get_server_state(id) != state
         print '..'
-        sleep 5 
+        sleep 5
       end
       state
     end
@@ -116,17 +116,20 @@ module CloudstackClient
         'command' => 'listVirtualMachines',
         'listAll' => true
       }
+			params.merge!(args[:custom])
+
       params['state'] = args[:state] if args[:state]
       params['state'] = args[:status] if args[:status]
       params['groupid'] = args[:group_id] if args[:group_id]
 
+
       if args[:zone]
         zone = get_zone(args[:zone])
-        unless zone 
+        unless zone
           puts "Error: Zone #{args[:zone]} not found"
           exit 1
         end
-        params['zoneid'] = zone['id']  
+        params['zoneid'] = zone['id']
       end
 
       if args[:account]
@@ -190,7 +193,7 @@ module CloudstackClient
 
       if args[:name]
         server = get_server(args[:name], project_id: params['projectid'])
-        if server 
+        if server
           puts "Error: Server '#{args[:name]}' already exists."
           exit 1
         end
@@ -341,7 +344,7 @@ module CloudstackClient
       params['expunge'] = true if args[:expunge]
       args[:sync] ? send_request(params) : send_async_request(params)['virtualmachine']
     end
-  
+
   end
 
  end
