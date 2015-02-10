@@ -116,7 +116,7 @@ module CloudstackClient
         'command' => 'listVirtualMachines',
         'listAll' => true
       }
-			params.merge!(args[:custom])
+			params.merge!(args[:custom]) if args.key?(:custom)
 
       params['state'] = args[:state] if args[:state]
       params['state'] = args[:status] if args[:status]
