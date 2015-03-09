@@ -11,7 +11,7 @@ module CloudstackClient
           'listall' => 'true',
           'name' => name
       }
-      params['projectid'] = project_id if project_id 
+      params['projectid'] = project_id if project_id
 
       json = send_request(params)
       json['router'] ? json['router'].first : nil
@@ -28,11 +28,11 @@ module CloudstackClient
       }
       if args[:zone]
         zone = get_zone(args[:zone])
-        unless zone 
+        unless zone
           puts "Error: Zone #{args[:zone]} not found"
           exit 1
         end
-        params['zoneid'] = zone['id']  
+        params['zoneid'] = zone['id']
       end
       params['projectid'] = args[:projectid] if args[:projectid]
       params['state'] = args[:status] if args[:status]
@@ -79,6 +79,17 @@ module CloudstackClient
     def stop_router(id, opts = {async: true})
       params = {
         'command' => 'stopRouter',
+        'id' => id
+      }
+      opts[:async] ? send_async_request(params)['router'] : send_request(params)
+    end
+
+		##
+    # Reboot virtual router.
+
+    def reboot_router(id, opts = {async: true})
+      params = {
+        'command' => 'rebootRouter',
         'id' => id
       }
       opts[:async] ? send_async_request(params)['router'] : send_request(params)
