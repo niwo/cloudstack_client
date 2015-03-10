@@ -1,6 +1,6 @@
 module CloudstackClient
 
-	module Router
+  module Router
 
     ##
     # Get a router with a given name.
@@ -17,7 +17,7 @@ module CloudstackClient
       json['router'] ? json['router'].first : nil
     end
 
-		##
+    ##
     # Lists all virtual routers.
 
     def list_routers(args = {:account => nil, :zone => nil, :projectid => nil, :status => nil, :name => nil})
@@ -84,7 +84,7 @@ module CloudstackClient
       opts[:async] ? send_async_request(params)['router'] : send_request(params)
     end
 
-		##
+    ##
     # Reboot virtual router.
 
     def reboot_router(id, opts = {async: true})
@@ -95,6 +95,6 @@ module CloudstackClient
       opts[:async] ? send_async_request(params)['router'] : send_request(params)
     end
 
-	end
+  end
 
 end

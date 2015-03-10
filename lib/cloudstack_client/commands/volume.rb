@@ -1,10 +1,10 @@
 module CloudstackClient
 
-	module Volume
+  module Volume
 
-		##
+    ##
     # Lists all volumes.
-    
+
     def list_volumes(args = {})
       params = {
           'command' => 'listVolumes',
@@ -13,11 +13,11 @@ module CloudstackClient
 
       if args[:zone]
         zone = get_zone(args[:zone])
-        unless zone 
+        unless zone
           puts "Error: Zone #{args[:zone]} not found"
           exit 1
         end
-        params['zoneid'] = zone['id']  
+        params['zoneid'] = zone['id']
       end
 
       if args[:account]
@@ -44,11 +44,11 @@ module CloudstackClient
       params['tags'] = args[:tags] if args[:tags]
       params['podid'] = args[:pod_id] if args[:pod_id]
       params['isrecursive'] = args[:is_recursive] if args[:is_recursive]
-  
+
       json = send_request(params)
       json['volume'] || []
     end
 
-	end
+  end
 
 end

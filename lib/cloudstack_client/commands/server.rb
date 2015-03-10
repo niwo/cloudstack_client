@@ -1,8 +1,8 @@
 module CloudstackClient
 
-	module Server
+  module Server
 
-		##
+    ##
     # Finds the server with the specified name.
 
     def get_server(name, args = {})
@@ -23,7 +23,9 @@ module CloudstackClient
         params['account'] = args[:account]
       end
 
-      if args[:project]
+      if args[:project_id]
+        params['projectid'] = args[:project_id]
+      elsif args[:project]
         project = get_project(args[:project])
         if !project
           msg = "Project '#{args[:project]}' is invalid"
@@ -31,8 +33,6 @@ module CloudstackClient
           exit 1
         end
         params['projectid'] = project['id']
-      elsif args[:project_id]
-        params['projectid'] = args[:project_id]
       end
 
       json = send_request(params)
@@ -116,7 +116,7 @@ module CloudstackClient
         'command' => 'listVirtualMachines',
         'listAll' => true
       }
-			params.merge!(args[:custom]) if args[:custom]
+      params.merge!(args[:custom]) if args[:custom]
 
       params['state'] = args[:state] if args[:state]
       params['state'] = args[:status] if args[:status]
