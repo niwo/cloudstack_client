@@ -20,7 +20,7 @@ module CloudstackClient
     ##
     # Lists project accounts.
 
-    def list_project_accounts(project_id, args)
+    def list_project_accounts(project_id, args = {})
       params = {
         'command' => 'listProjectAccounts',
         'projectid' => project_id,
