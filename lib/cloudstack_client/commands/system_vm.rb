@@ -28,55 +28,55 @@ module CloudstackClient
       json['systemvm'] || []
     end
 
-  end
+    ##
+    # Stop system VM.
+    #
 
-  ##
-  # Stop system VM.
-  #
-
-  def stop_system_vm(id, args = {})
-    params = {
-      'command' => 'stopSystemVm',
-      'id' => id
-    }
-    params['forced'] = true if args[:forced]
-    args[:sync] ? send_request(params) : send_async_request(params)['systemvm']
-  end
-
-  ##
-  # Start system VM.
-  #
-
-  def start_system_vm(id, args = {})
-    params = {
-      'command' => 'startSystemVm',
-      'id' => id
-    }
-    args[:sync] ? send_request(params) : send_async_request(params)['systemvm']
-  end
-
-  ##
-  # Reboot sytem VM.
-  #
-
-  def reboot_system_vm(id, args = {})
-    params = {
-      'command' => 'rebootSystemVm',
-      'id' => id
-    }
-    args[:sync] ? send_request(params) : send_async_request(params)['systemvm']
-  end
-
-  ##
-  # Destroy sytem VM.
-  #
-
-  def destroy_system_vm(id, args = {})
-    params = {
-        'command' => 'destroySystemVm',
+    def stop_system_vm(id, args = {})
+      params = {
+        'command' => 'stopSystemVm',
         'id' => id
-    }
-    args[:sync] ? send_request(params) : send_async_request(params)['systemvm']
-  end
+      }
+      params['forced'] = true if args[:forced]
+      args[:sync] ? send_request(params) : send_async_request(params)['systemvm']
+    end
+
+    ##
+    # Start system VM.
+    #
+
+    def start_system_vm(id, args = {})
+      params = {
+        'command' => 'startSystemVm',
+        'id' => id
+      }
+      args[:sync] ? send_request(params) : send_async_request(params)['systemvm']
+    end
+
+    ##
+    # Reboot sytem VM.
+    #
+
+    def reboot_system_vm(id, args = {})
+      params = {
+        'command' => 'rebootSystemVm',
+        'id' => id
+      }
+      args[:sync] ? send_request(params) : send_async_request(params)['systemvm']
+    end
+
+    ##
+    # Destroy sytem VM.
+    #
+
+    def destroy_system_vm(id, args = {})
+      params = {
+          'command' => 'destroySystemVm',
+          'id' => id
+      }
+      args[:sync] ? send_request(params) : send_async_request(params)['systemvm']
+    end
+
+  end # module
 
 end
