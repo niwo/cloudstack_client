@@ -1,5 +1,0 @@
-#!/usr/bin/env ruby
-
-require 'cloudstack_client/command_generator'
-
-CloudstackClient::CommandGenerator.start

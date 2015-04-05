@@ -1,10 +1,9 @@
 require 'cloudstack_client/client'
-require 'connection_helper'
 require 'thor'
 require 'yaml'
 
 module CloudstackClient
-  class CommandGenerator < Thor
+  class Cli < Thor
     include Thor::Actions
 
     class_option :config_file,
@@ -20,16 +19,33 @@ module CloudstackClient
       desc: 'enable debug output',
       type: :boolean
 
-    desc "generate", "generate api commands using the Cloudstack API Discovery service"
-    def generate
-      say json = client.send_request('command' => 'listApis')
-      commands = ['apis'] || []
-      commands.each do |command|
-        say command['name']
+    desc "list_apis", "list api commands using the Cloudstack API Discovery service"
+    option :format, default: 'json',
+      enum: %w(json yaml), desc: "output format"
+    option :pretty_print, default: true, type: :boolean,
+      desc: "pretty print json output"
+    option :remove_response, default: true, type: :boolean,
+      desc: "remove response sections"
+    option :remove_description, default: true, type: :boolean,
+      desc: "remove description sections"
+    def list_apis
+      data = client.send_request('command' => 'listApis')
+      data["api"].each do |command|
+        command.delete("response") if options[:remove_response]
+        if options[:remove_description]
+          command.delete("description")
+          command["params"].each {|param| param.delete("description")}
+        end
       end
+      output = if options[:format] == "json"
+        options[:pretty_print] ? JSON.pretty_generate(data) : data.to_json
+      else
+        data.to_yaml
+      end
+      puts output
     end
 
-    no_commands do  
+    no_commands do
       def client(opts = {})
         @config ||= load_configuration
         @client ||= CloudstackClient::Connection.new(
@@ -43,7 +59,7 @@ module CloudstackClient
       def load_configuration(config_file = options[:config_file], env = options[:env])
         unless File.exists?(config_file)
           say "Configuration file #{config_file} not found.", :red
-          say "Please run \'cs environment add\' to create one."
+          say "Please run \'cloudstack-cli environment add\' to create one."
           exit 1
         end
 
@@ -53,7 +69,7 @@ module CloudstackClient
           say "Can't load configuration from file #{config_file}.", :red
           exit 1
         end
-        
+
         env ||= config[:default]
         if env
           unless config = config[env]
