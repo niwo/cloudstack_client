@@ -50,7 +50,7 @@ module CloudstackClient
           elsif response.size == 1 && response.values.first.respond_to?(:keys)
             response.values.first
           else
-            []
+            response.size == 0 ? [] : response
           end
         end
       end
