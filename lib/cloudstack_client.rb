@@ -1,3 +1,3 @@
-require_relative "cloudstack_client/version"
-require_relative "cloudstack_client/api"
-require_relative "cloudstack_client/client"
+require "cloudstack_client/version"
+require "cloudstack_client/api"
+require "cloudstack_client/client"

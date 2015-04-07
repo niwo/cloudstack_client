@@ -15,16 +15,46 @@ module CloudstackClient
 
     attr_accessor :verbose, :debug, :api_version
 
-    def initialize(api_url, api_key, secret_key, opts = {})
+    def initialize(api_url, api_key, secret_key, options = {})
       @api_url = api_url
       @api_key = api_key
       @secret_key = secret_key
-      @api_version = opts[:api_version] || "4.2"
-      @verbose = opts[:quiet] ? false : true
-      @debug = opts[:debug] ? true : false
+      @api_version = options[:api_version] if options[:api_version]
+      @api_file = options[:api_file] if options[:api_file]
+      @verbose = options[:quiet] ? false : true
+      @debug = options[:debug] ? true : false
+      define_api_methods() unless options[:no_api_methods]
     end
 
-    include CloudstackClient::Api
+    def define_api_methods
+      Api.new(api_file: @api_file, api_version: @api_version).commands.each do |command|
+        method_name = underscore(command.name).to_sym
+
+        define_singleton_method(method_name) do |args = {}, options = {}|
+          params = {"command" => command.name}
+
+          args.each do |key, value|
+            params[key.to_s.gsub("_", "")] = value
+          end
+
+          response = if command.isasync == false || options[:sync]
+            send_request(params)
+          else
+            send_async_request(params)
+          end
+
+          return [] unless response.respond_to?(:keys)
+
+          if response.size == 2 && response.key?("count")
+            response.reject { |key, _| key == "count" }.values.first
+          elsif response.size == 1 && response.values.first.respond_to?(:keys)
+            response.values.first
+          else
+            []
+          end
+        end
+      end
+    end
 
     ##
     # Sends a synchronous request to the CloudStack API and returns the response as a Hash.
@@ -136,6 +166,14 @@ module CloudstackClient
       puts output
       puts seperator
       puts
+    end
+
+    def underscore(camel_case)
+      camel_case.gsub(/::/, '/').
+        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+        gsub(/([a-z\d])([A-Z])/,'\1_\2').
+        tr("-", "_").
+        downcase
     end
 
   end # class
