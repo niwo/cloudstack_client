@@ -17,7 +17,7 @@ $ gem install cloudstack_client
 ```ruby
 require "cloudstack_client"
 
-cs = CloudstackClient::Connection.new(
+cs = CloudstackClient::Client.new(
   "https://cloudstack.local/client/api",
   "API_KEY",
   "API_SECRET"
