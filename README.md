@@ -23,7 +23,7 @@ cs = CloudstackClient::Connection.new(
   "API_SECRET"
 )
 
-cs.list_servers(state: "running").each do |server|
+cs.list_virtual_machines(state: "running").each do |server|
   puts server["name"]
 end
 ```

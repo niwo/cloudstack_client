@@ -1,6 +1,7 @@
 require 'cloudstack_client/client'
 require 'thor'
 require 'yaml'
+require 'ripl'
 
 module CloudstackClient
   class Cli < Thor
@@ -18,6 +19,12 @@ module CloudstackClient
     class_option :debug,
       desc: 'enable debug output',
       type: :boolean
+
+    desc "version", "Print cloudstack_client version number"
+    def version
+      say "cloudstack_client version #{CloudstackClient::VERSION}"
+    end
+    map %w(-v --version) => :version
 
     desc "list_apis", "list api commands using the Cloudstack API Discovery service"
     option :format, default: 'json',
@@ -45,10 +52,18 @@ module CloudstackClient
       puts output
     end
 
+    desc "console", "Cloudstack Client interactive shell"
+    def console
+      puts "cloudstack_client version #{CloudstackClient::VERSION}"
+      puts '  try: list_virtual_machines state: "Started"'
+      ARGV.clear
+      Ripl.start binding: client.instance_eval('binding')
+    end
+
     no_commands do
       def client(opts = {})
         @config ||= load_configuration
-        @client ||= CloudstackClient::Connection.new(
+        @client ||= CloudstackClient::Client.new(
           @config[:url],
           @config[:api_key],
           @config[:secret_key],
