@@ -57,17 +57,18 @@ module CloudstackClient
       puts "cloudstack_client version #{CloudstackClient::VERSION}"
       puts '  try: list_virtual_machines state: "Started"'
       ARGV.clear
+      env = options[:env] ? options[:env] : load_configuration.last
+      Ripl.config[:prompt] = "#{env} >> "
       Ripl.start binding: client.instance_eval('binding')
     end
 
     no_commands do
       def client(opts = {})
-        @config ||= load_configuration
+        @config ||= load_configuration.first
         @client ||= CloudstackClient::Client.new(
           @config[:url],
           @config[:api_key],
-          @config[:secret_key],
-          {no_commands: true}
+          @config[:secret_key]
         )
       end
 
@@ -97,7 +98,7 @@ module CloudstackClient
           say "The environment #{env || '\'-\''} contains no valid data.", :red
           exit 1
         end
-        config
+        return config, env
       end
 
     end # no_commands
