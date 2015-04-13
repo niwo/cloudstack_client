@@ -9,7 +9,7 @@ module CloudstackClient
     def initialize(options = {})
       unless options[:api_file]
         @api_version = options[:api_version] || DEFAULT_API_VERSION
-        @api_file = "./config/#{@api_version}.json"
+        @api_file = File.expand_path("../../../config/#{@api_version}.json", __FILE__)
       else
         @api_file = options[:api_file]
         @api_version = File.basename(@api_file, ".json")
