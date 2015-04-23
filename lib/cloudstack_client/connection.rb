@@ -60,16 +60,16 @@ module CloudstackClient
         raise ConnectionError, "API URL \'#{@api_url}\' is not reachable."
       end
 
+      begin
+        data = JSON.parse(response.body)
+      rescue JSON::ParserError
+        raise ParseError, "Error parsing response from server: #{response.body}."
+      end
+
       if response.is_a? Net::HTTPOK
-        begin
-          json = JSON.parse(response.body)
-          json = json[params['command'].downcase + 'response']
-        rescue JSON::ParserError
-          raise ParseError, "Error parsing response from server: #{response.body}."
-        end
+        data.values.first rescue data
       else
-        json = JSON.parse(response.body)
-        message = json[json.keys.first]['errortext'] rescue response.body
+        message = data[data.keys.first]['errortext'] rescue data
         raise ApiError, "Error #{response.code} - #{message}."
       end
     end

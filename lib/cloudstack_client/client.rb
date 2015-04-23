@@ -31,12 +31,10 @@ module CloudstackClient
             send_async_request(params)
           end
 
-          return [] unless response.respond_to?(:keys)
-
           if response.size == 2 && response.key?("count")
             response.reject { |key, _| key == "count" }.values.first
-          elsif response.size == 1 && response.values.first.respond_to?(:keys)
-            response.values.first
+          elsif response.size == 1 && response.respond_to?(:keys)
+            response.reject { |key, _| key == "count" }.values
           else
             response.size == 0 ? [] : response
           end
