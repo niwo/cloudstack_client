@@ -7,12 +7,12 @@ module CloudstackClient
     DEFAULT_API_VERSION = "4.2"
 
     def initialize(options = {})
-      unless options[:api_file]
-        @api_version = options[:api_version] || DEFAULT_API_VERSION
-        @api_file = File.expand_path("../../../config/#{@api_version}.json", __FILE__)
-      else
+      if options[:api_file]
         @api_file = options[:api_file]
         @api_version = File.basename(@api_file, ".json")
+      else
+        @api_version = options[:api_version] || DEFAULT_API_VERSION
+        @api_file = File.expand_path("../../../config/#{@api_version}.json", __FILE__)
       end
     end
 
@@ -20,8 +20,7 @@ module CloudstackClient
       begin
         api = JSON.parse(IO.read @api_file)
       rescue => e
-        puts "Error: Unable to load '#{@api_file}' : #{e}"
-        exit
+        raise "Error: Unable to read file '#{@api_file}' : #{e.message}"
       end
       api["api"].map {|command| OpenStruct.new command }
     end
