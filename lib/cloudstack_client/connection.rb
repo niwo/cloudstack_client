@@ -9,10 +9,8 @@ require 'json'
 module CloudstackClient
   class Connection
 
-    @@async_poll_interval = 2.0
-    @@async_timeout = 400
-
     attr_accessor :api_url, :api_key, :secret_key, :verbose, :debug
+    attr_accessor :async_poll_interval, :async_timeout
 
     def initialize(api_url, api_key, secret_key, options = {})
       @api_url = api_url
@@ -20,22 +18,22 @@ module CloudstackClient
       @secret_key = secret_key
       @verbose = options[:quiet] ? false : true
       @debug = options[:debug] ? true : false
+      @async_poll_interval = options[:async_poll_interval] || 2.0
+      @async_timeout = options[:async_timeout] || 400
     end
 
     ##
     # Sends a synchronous request to the CloudStack API and returns the response as a Hash.
     #
-    # The wrapper element of the response (e.g. mycommandresponse) is discarded and the
-    # contents of that element are returned.
 
     def send_request(params)
       params['response'] = 'json'
       params['apiKey'] = @api_key
 
-      params_arr = []
-      params.sort.each { |elem|
-        params_arr << elem[0].to_s + '=' + CGI.escape(elem[1].to_s).gsub('+', '%20').gsub(' ','%20')
-      }
+      params_arr = params.sort.map do |key, value|
+        value = CGI.escape(value.to_s).gsub('+', '%20').gsub(' ','%20')
+        "#{key}=#{value}"
+      end
 
       debug_output JSON.pretty_generate(params) if @debug
 
@@ -61,13 +59,21 @@ module CloudstackClient
       end
 
       begin
-        data = JSON.parse(response.body)
+        body = JSON.parse(response.body).values.first
       rescue JSON::ParserError
         raise ParseError, "Error parsing response from server: #{response.body}."
       end
 
       if response.is_a? Net::HTTPOK
-        data.values.first rescue data
+        return body unless body.respond_to?(:keys)
+        if body.size == 2 && body.key?('count')
+          return body.reject { |key, _| key == 'count' }.values.first
+        elsif body.size == 1 && body.values.first.respond_to?(:keys)
+          item = body.values.first
+          return item.is_a?(Array) ? item : []
+        else
+          response.size == 0 ? [] : body
+        end
       else
         message = data[data.keys.first]['errortext'] rescue data
         raise ApiError, "Error #{response.code} - #{message}."
@@ -80,35 +86,37 @@ module CloudstackClient
     # The contents of the 'jobresult' element are returned upon completion of the command.
 
     def send_async_request(params)
-
-      json = send_request(params)
+      data = send_request(params)
 
       params = {
-          'command' => 'queryAsyncJobResult',
-          'jobId' => json['jobid']
+        'command' => 'queryAsyncJobResult',
+        'jobid' => data['jobid']
       }
 
-      max_tries = (@@async_timeout / @@async_poll_interval).round
       max_tries.times do
-        json = send_request(params)
-        status = json['jobstatus']
+        data = send_request(params)
 
         print "." if @verbose
 
-        if status == 1
-          return json['jobresult']
-        elsif status == 2
-          raise JobError, "Request failed (#{json['jobresultcode']}). #{json['jobresult']}."
+        case data['jobstatus']
+        when 1
+          return data['jobresult']
+        when 2
+          raise JobError, "Request failed (#{data['jobresultcode']}). #{data['jobresult']}."
         end
 
-        STDOUT.flush
-        sleep @@async_poll_interval
+        STDOUT.flush if @verbose
+        sleep @async_poll_interval
       end
 
-      raise TiemoutError, "Asynchronous request timed out."
+      raise TimeoutError, "Asynchronous request timed out."
     end
 
     private
+
+    def max_tries
+      (@async_timeout / @async_poll_interval).round
+    end
 
     def debug_output(output, seperator = '-' * 80)
       puts
