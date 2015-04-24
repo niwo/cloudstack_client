@@ -11,22 +11,22 @@ Install the cloudstack_client gem:
 ```bash
 $ gem install cloudstack_client
 ```
-
+    
 ## Usage
 
 ```ruby
 require "cloudstack_client"
-
-cs = CloudstackClient::Client.new(
-  "https://cloudstack.local/client/api",
+    
+cs = CloudstackClient::Connection.new(
+  "https://api.cloudstack.cs/client/api",
   "API_KEY",
   "API_SECRET"
 )
-
-cs.list_virtual_machines(state: "running").each do |server|
+     
+cs.list_servers(state: "running").each do |server|
   puts server["name"]
 end
-```
+```    
 
 ## References
 -  [Apache CloudStack API documentation](http://cloudstack.apache.org/docs/api/)
