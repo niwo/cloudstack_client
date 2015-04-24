@@ -72,7 +72,8 @@ module CloudstackClient
           item = body.values.first
           return item.is_a?(Array) ? item : []
         else
-          response.size == 0 ? [] : body
+          body.reject! { |key, _| key == 'count' } if body.key?('count')
+          body.size == 0 ? [] : body
         end
       else
         message = data[data.keys.first]['errortext'] rescue data
