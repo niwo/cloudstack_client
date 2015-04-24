@@ -22,8 +22,9 @@ module CloudstackClient
           params = {"command" => command.name}
 
           args.each do |k, v|
-            unless v == nil
-              params[k.to_s.gsub("_", "")] = v
+            k = normalize_key(k)
+            if v != nil && command_supports_key?(command, k)
+              params[k] = v
             end
           end
 
@@ -34,6 +35,14 @@ module CloudstackClient
     end
 
     private
+
+    def normalize_key(key)
+      key.to_s.gsub("_", "")
+    end
+
+    def command_supports_key?(command, key)
+      command.params.detect { |p| p["name"] == key }
+    end
 
     def underscore(camel_case)
       camel_case.gsub(/::/, '/').

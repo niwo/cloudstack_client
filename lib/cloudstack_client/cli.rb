@@ -36,8 +36,8 @@ module CloudstackClient
     option :remove_description, default: true, type: :boolean,
       desc: "remove description sections"
     def list_apis
-      data = client.send_request('command' => 'listApis')
-      data["api"].each do |command|
+      apis = client.send_request('command' => 'listApis')
+      apis.each do |command|
         command.delete("response") if options[:remove_response]
         if options[:remove_description]
           command.delete("description")
@@ -45,9 +45,9 @@ module CloudstackClient
         end
       end
       output = if options[:format] == "json"
-        options[:pretty_print] ? JSON.pretty_generate(data) : data.to_json
+        options[:pretty_print] ? JSON.pretty_generate(apis) : data.to_json
       else
-        data.to_yaml
+        apis.to_yaml
       end
       puts output
     end
