@@ -1,7 +1,20 @@
 require 'cloudstack_client/client'
-require 'thor'
 require 'yaml'
-require 'ripl'
+
+begin
+  require 'thor'
+  require 'ripl'
+rescue LoadError => e
+  missing_gem = if e.message =~ /thor/
+    "thor"
+  elsif e.message =~ /ripl/
+    "ripl"
+  else
+    raise
+  end
+  puts "Please install the #{missing_gem} gem first ('gem install #{missing_gem}')"
+  exit 1
+end
 
 module CloudstackClient
   class Cli < Thor
@@ -27,8 +40,8 @@ module CloudstackClient
     map %w(-v --version) => :version
 
     desc "list_apis", "list api commands using the Cloudstack API Discovery service"
-    option :format, default: 'json',
-      enum: %w(json yaml), desc: "output format"
+    option :format, default: 'msgpack',
+      enum: %w(msgpack json yaml), desc: "output format"
     option :pretty_print, default: true, type: :boolean,
       desc: "pretty print json output"
     option :remove_response, default: true, type: :boolean,
@@ -44,12 +57,15 @@ module CloudstackClient
           command["params"].each {|param| param.delete("description")}
         end
       end
-      output = if options[:format] == "json"
+
+      puts case options[:format]
+      when "json"
         options[:pretty_print] ? JSON.pretty_generate(apis) : data.to_json
-      else
+      when "yaml"
         apis.to_yaml
+      else
+        apis.to_msgpack
       end
-      puts output
     end
 
     desc "console", "Cloudstack Client interactive shell"
