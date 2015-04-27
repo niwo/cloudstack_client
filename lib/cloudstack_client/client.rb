@@ -28,9 +28,8 @@ module CloudstackClient
             end
           end
 
-          unless all_required_args?(command, args)
-            raise MissingArgumentsError,
-              "The following options are required: #{required_args(command).join(', ')}"
+          unless all_required_args?(command, params)
+            raise MissingArgumentsError, missing_args_msg(command)
           end
 
           sync = command.isasync == false || options[:sync]
@@ -39,22 +38,29 @@ module CloudstackClient
       end
     end
 
+    def command_supports_key?(command, key)
+      command.params.detect { |p| p["name"] == key }
+    end
+
+    def required_args(command)
+      command.params.map do |param|
+        param["name"] if param["required"] == true
+      end.compact
+    end
+
+    def all_required_args?(command, args)
+      required_args(command).all? {|k| args.key? k}
+    end
+
     private
 
     def normalize_key(key)
       key.to_s.gsub("_", "")
     end
 
-    def command_supports_key?(command, key)
-      command.params.detect { |p| p["name"] == key }
-    end
-
-    def required_args(command)
-      required = command.params.map { |p| p["required"] == true }
-    end
-
-    def all_required_args?(command, args)
-      required_args(command).all? {|k| args.key? k}
+    def missing_args_msg(command)
+      requ = required_args(command)
+      "#{command.name} requires the following argument#{ 's' if requ.size > 1}: #{requ.join(', ')}"
     end
 
     def camel_case_to_underscore(camel_case)

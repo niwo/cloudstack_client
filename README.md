@@ -36,6 +36,30 @@ end
   - makes sure all required arguments are passed
   - Removes unsupported arguments and arguments with nil values from commands
 
+## Development
+
+### Generate new API configs
+
+New API configs can be genearted using the list_apis command.
+
+*Example:*
+
+```bash
+# running against an CloudStack 4.5 API endpoint:
+$ bundle exec bin/cloudstack_client list_apis > config/4.5.msgpack
+```
+
+### Interactive Console
+
+cloudstack_client comes with an interactive shell to test the client.
+
+*Example:*
+
+```bash
+$ bundle exec bin/cloudstack_client console -e prod
+prod >> list_virtual_machines
+```
+
 ## References
 -  [Apache CloudStack API documentation](http://cloudstack.apache.org/docs/api/)
 
