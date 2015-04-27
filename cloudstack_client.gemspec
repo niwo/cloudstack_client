@@ -19,10 +19,10 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.rdoc_options  = %w[--line-numbers --inline-source]
 
-  gem.add_dependency('msgpack')
+  gem.add_dependency('msgpack', '~> 0.5.11')
 
-  gem.add_development_dependency('rdoc')
-  gem.add_development_dependency('rake', '~> 10.0', '>= 10.0.4')
-  gem.add_development_dependency('thor')
-  gem.add_development_dependency('ripl')
+  gem.add_development_dependency('rdoc', '~> 4.2.0')
+  gem.add_development_dependency('rake', '~> 10.4.2')
+  gem.add_development_dependency('thor', '~> 0.19.1')
+  gem.add_development_dependency('ripl', '~> 0.7.0')
 end
