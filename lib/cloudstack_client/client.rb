@@ -16,15 +16,21 @@ module CloudstackClient
 
     def define_api_methods
       Api.new(api_file: @api_file, api_version: @api_version).commands.each do |command|
-        method_name = underscore(command.name).to_sym
+        method_name = camel_case_to_underscore(command.name).to_sym
 
         define_singleton_method(method_name) do |args = {}, options = {}|
           params = {"command" => command.name}
 
           args.each do |k, v|
-            unless v == nil
-              params[k.to_s.gsub("_", "")] = v
+            k = normalize_key(k)
+            if v != nil && command_supports_key?(command, k)
+              params[k] = v
             end
+          end
+
+          unless all_required_args?(command, args)
+            raise MissingArgumentsError,
+              "The following options are required: #{required_args(command).join(', ')}"
           end
 
           sync = command.isasync == false || options[:sync]
@@ -35,7 +41,23 @@ module CloudstackClient
 
     private
 
-    def underscore(camel_case)
+    def normalize_key(key)
+      key.to_s.gsub("_", "")
+    end
+
+    def command_supports_key?(command, key)
+      command.params.detect { |p| p["name"] == key }
+    end
+
+    def required_args(command)
+      required = command.params.map { |p| p["required"] == true }
+    end
+
+    def all_required_args?(command, args)
+      required_args(command).all? {|k| args.key? k}
+    end
+
+    def camel_case_to_underscore(camel_case)
       camel_case.gsub(/::/, '/').
         gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
         gsub(/([a-z\d])([A-Z])/,'\1_\2').

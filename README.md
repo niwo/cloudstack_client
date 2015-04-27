@@ -28,6 +28,14 @@ cs.list_virtual_machines(state: "running").each do |server|
 end
 ```
 
+## Features
+
+  - Dynamically builds API methods based on the lisApis function of CloudStack
+  - Command names are converted to match Ruby naming conventions (i.e. ListVirtualMachines becomes list_virtual_machines)
+  - Accepts Ruby style args passed to commands (i.e. list_all: true becomes listall=true)
+  - makes sure all required arguments are passed
+  - Removes unsupported arguments and arguments with nil values from commands
+
 ## References
 -  [Apache CloudStack API documentation](http://cloudstack.apache.org/docs/api/)
 

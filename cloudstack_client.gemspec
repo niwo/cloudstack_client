@@ -19,6 +19,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.rdoc_options  = %w[--line-numbers --inline-source]
 
+  gem.add_dependency('msgpack')
+
   gem.add_development_dependency('rdoc')
   gem.add_development_dependency('rake', '~> 10.0', '>= 10.0.4')
   gem.add_development_dependency('thor')
