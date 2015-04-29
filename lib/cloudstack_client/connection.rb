@@ -77,8 +77,8 @@ module CloudstackClient
           body.size == 0 ? [] : body
         end
       else
-        message = data[data.keys.first]['errortext'] rescue body
-        raise ApiError, "Error #{response.code} - #{message}."
+        message = body['errortext'] rescue body
+        raise ApiError, "Status #{response.code}: #{message}."
       end
     end
 
