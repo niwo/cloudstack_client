@@ -108,6 +108,7 @@ module CloudstackClient
         end
 
         STDOUT.flush if @verbose
+
         sleep @async_poll_interval
       end
 

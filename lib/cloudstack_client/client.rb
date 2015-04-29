@@ -29,7 +29,7 @@ module CloudstackClient
           end
 
           unless all_required_args?(command, params)
-            raise ArgumentError, missing_args_msg(command)
+            raise ParameterError, missing_args_msg(command)
           end
 
           sync = command.isasync == false || options[:sync]
