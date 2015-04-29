@@ -61,7 +61,8 @@ module CloudstackClient
       begin
         body = JSON.parse(response.body).values.first
       rescue JSON::ParserError
-        raise ParseError, "Error parsing response from server: #{response.body}."
+        raise ParseError,
+          "Response from server is not readable. Check if the API endpoint (#{@api_url}) is correct is accessible."
       end
 
       if response.is_a? Net::HTTPOK
@@ -76,7 +77,7 @@ module CloudstackClient
           body.size == 0 ? [] : body
         end
       else
-        message = data[data.keys.first]['errortext'] rescue "Response not readable. Check if the API endpoint (#{@api_url}) is accessible."
+        message = data[data.keys.first]['errortext'] rescue body
         raise ApiError, "Error #{response.code} - #{message}."
       end
     end
