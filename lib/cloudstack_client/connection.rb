@@ -76,7 +76,7 @@ module CloudstackClient
           body.size == 0 ? [] : body
         end
       else
-        message = data[data.keys.first]['errortext'] rescue data
+        message = data[data.keys.first]['errortext'] rescue "Response not readable. Check if the API endpoint (#{@api_url}) is accessible."
         raise ApiError, "Error #{response.code} - #{message}."
       end
     end

@@ -46,7 +46,7 @@ New API configs can be genearted using the list_apis command.
 
 ```bash
 # running against an CloudStack 4.5 API endpoint:
-$ bundle exec bin/cloudstack_client list_apis > config/4.5.msgpack
+$ cloudstack_client list_apis > config/4.5.msgpack
 ```
 
 ### Interactive Console
@@ -56,7 +56,7 @@ cloudstack_client comes with an interactive shell to test the client.
 *Example:*
 
 ```bash
-$ bundle exec bin/cloudstack_client console -e prod
+$ cloudstack_client console -e prod
 prod >> list_virtual_machines
 ```
 
