@@ -20,6 +20,7 @@ module CloudstackClient
       @debug = options[:debug] ? true : false
       @async_poll_interval = options[:async_poll_interval] || 2.0
       @async_timeout = options[:async_timeout] || 400
+      @options = options
     end
 
     ##

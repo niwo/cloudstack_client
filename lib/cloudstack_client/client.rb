@@ -10,14 +10,12 @@ module CloudstackClient
     attr_reader :api
 
     def initialize(api_url, api_key, secret_key, options = {})
-      super(api_url, api_key, secret_key, options = {})
-      unless options[:no_api_methods]
-        @api = Api.new(options)
-        define_api_methods
-      end
+      super(api_url, api_key, secret_key, options)
+      define_api_methods unless options[:no_api_methods]
     end
 
     def define_api_methods
+      @api = Api.new(@options)
       @api.commands.each do |name, command|
         method_name = camel_case_to_underscore(command.name).to_sym
 
