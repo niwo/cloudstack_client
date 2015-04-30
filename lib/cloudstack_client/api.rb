@@ -21,11 +21,11 @@ module CloudstackClient
     end
 
     def command_supports_param?(command, key)
-      command.params.detect { |p| p["name"] == key }
+      commands[command].params.detect { |p| p["name"] == key }
     end
 
     def required_params(command)
-      command.params.map do |param|
+      commands[command].params.map do |param|
         param["name"] if param["required"] == true
       end.compact
     end
@@ -40,7 +40,7 @@ module CloudstackClient
 
     def missing_params_msg(command)
       requ = required_params(command)
-      "#{command.name} requires the following parameter#{ 's' if requ.size > 1}: #{requ.join(', ')}"
+      "#{command} requires the following parameter#{ 's' if requ.size > 1}: #{requ.join(', ')}"
     end
 
     private
@@ -51,7 +51,12 @@ module CloudstackClient
       rescue => e
         raise "Error: Unable to read file '#{@api_file}' : #{e.message}"
       end
-      api["api"].map {|command| OpenStruct.new command }
+      @command_map
+      commands = Hash.new
+      api["api"].each do |command|
+        commands[command["name"]] = OpenStruct.new command
+      end
+      commands
     end
 
   end

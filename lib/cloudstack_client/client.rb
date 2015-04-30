@@ -18,7 +18,7 @@ module CloudstackClient
     end
 
     def define_api_methods
-      @api.commands.each do |command|
+      @api.commands.each do |name, command|
         method_name = camel_case_to_underscore(command.name).to_sym
 
         define_singleton_method(method_name) do |args = {}, options = {}|
@@ -26,13 +26,13 @@ module CloudstackClient
 
           args.each do |k, v|
             k = @api.normalize_key(k)
-            if v != nil && @api.command_supports_param?(command, k)
+            if v != nil && @api.command_supports_param?(command.name, k)
               params[k] = v
             end
           end
 
-          unless @api.all_required_params?(command, params)
-            raise ParameterError, @api.missing_params_msg(command)
+          unless @api.all_required_params?(command.name, params)
+            raise ParameterError, @api.missing_params_msg(command.name)
           end
 
           sync = command.isasync == false || options[:sync]
