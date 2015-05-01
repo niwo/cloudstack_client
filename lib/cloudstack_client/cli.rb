@@ -1,9 +1,9 @@
-require 'cloudstack_client/client'
-require 'yaml'
+require "cloudstack_client/client"
+require "yaml"
 
 begin
-  require 'thor'
-  require 'ripl'
+  require "thor"
+  require "ripl"
 rescue LoadError => e
   missing_gem = if e.message =~ /thor/
     "thor"
@@ -12,7 +12,7 @@ rescue LoadError => e
   else
     raise
   end
-  puts "Please install the #{missing_gem} gem first ('gem install #{missing_gem}')"
+  puts "Please install the #{missing_gem} gem first ('gem install #{missing_gem}')."
   exit 1
 end
 

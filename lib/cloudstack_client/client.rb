@@ -1,6 +1,6 @@
 require "cloudstack_client/api"
 require "cloudstack_client/error"
-require 'cloudstack_client/utils'
+require "cloudstack_client/utils"
 require "cloudstack_client/connection"
 
 module CloudstackClient

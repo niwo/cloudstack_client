@@ -1,10 +1,10 @@
-require 'base64'
-require 'openssl'
-require 'uri'
-require 'cgi'
-require 'net/http'
-require 'net/https'
-require 'json'
+require "base64"
+require "openssl"
+require "uri"
+require "cgi"
+require "net/http"
+require "net/https"
+require "json"
 
 module CloudstackClient
   class Connection
