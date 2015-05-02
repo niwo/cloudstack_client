@@ -32,10 +32,6 @@ module CloudstackClient
       required_params(command).all? { |k| args.key? k }
     end
 
-    def normalize_key(key)
-      key.to_s.gsub!("_", "")
-    end
-
     def missing_params_msg(command)
       requ = required_params(command)
       "#{command} requires the following parameter#{ 's' if requ.size > 1}: #{requ.join(', ')}"
