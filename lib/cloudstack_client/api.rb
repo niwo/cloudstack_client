@@ -1,6 +1,4 @@
 require "msgpack"
-require "json"
-require "ostruct"
 
 module CloudstackClient
   class Api
@@ -21,21 +19,21 @@ module CloudstackClient
     end
 
     def command_supports_param?(command, key)
-      commands[command].params.detect { |p| p["name"] == key }
+      commands[command]["params"].detect { |p| p["name"] == key }
     end
 
     def required_params(command)
-      commands[command].params.map do |param|
+      commands[command]["params"].map do |param|
         param["name"] if param["required"] == true
       end.compact
     end
 
     def all_required_params?(command, args)
-      required_params(command).all? {|k| args.key? k}
+      required_params(command).all? { |k| args.key? k }
     end
 
     def normalize_key(key)
-      key.to_s.gsub("_", "")
+      key.to_s.gsub!("_", "")
     end
 
     def missing_params_msg(command)
@@ -51,11 +49,8 @@ module CloudstackClient
       rescue => e
         raise "Error: Unable to read file '#{@api_file}' : #{e.message}"
       end
-      @command_map
       commands = Hash.new
-      api["api"].each do |command|
-        commands[command["name"]] = OpenStruct.new command
-      end
+      api.each { |command| commands[command["name"]] = command }
       commands
     end
 
