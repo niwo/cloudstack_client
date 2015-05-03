@@ -10,13 +10,13 @@ memory_before = `ps -o rss= -p #{Process.pid}`.to_i/1024
 gc_stat_before = GC.stat
 
 time = Benchmark.realtime do
-  1.times do
+  100.times do
     api = CloudstackClient::Api.new
-    # command = "listVirtualMachines"
-    # puts api.command_supports_param?(command, "id")
-    # puts api.required_params(command)
-    # puts api.normalize_key "template_id"
-    # puts api.all_required_params?("deployVirtualMachine", {name: "test", templateid: 1})
+    command = "listVirtualMachines"
+    puts api.command_supports_param?(command, "id")
+    puts api.required_params(command)
+    puts api.normalize_key "template_id"
+    puts api.all_required_params?("deployVirtualMachine", {name: "test", templateid: 1})
   end
 end
 
