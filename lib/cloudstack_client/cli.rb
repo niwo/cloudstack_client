@@ -92,7 +92,7 @@ module CloudstackClient
       def load_configuration(config_file = options[:config_file], env = options[:env])
         unless File.exists?(config_file)
           say "Configuration file #{config_file} not found.", :red
-          say "Please run \'cloudstack-cli environment add\' to create one."
+          say "Please run 'cloudstack-cli environment add' to create one."
           exit 1
         end
 
@@ -103,8 +103,7 @@ module CloudstackClient
           exit 1
         end
 
-        env ||= config[:default]
-        if env
+        if env ||= config[:default]
           unless config = config[env]
             say "Can't find environment #{env}.", :red
             exit 1
