@@ -18,12 +18,16 @@ module CloudstackClient
       @commands = load_commands
     end
 
+    def command_supported?(command)
+      @commands.has_key? command
+    end
+
     def command_supports_param?(command, key)
-      commands[command]["params"].detect { |p| p["name"] == key }
+      @commands[command]["params"].detect { |p| p["name"] == key } ? true : false
     end
 
     def required_params(command)
-      commands[command]["params"].map do |param|
+      @commands[command]["params"].map do |param|
         param["name"] if param["required"] == true
       end.compact
     end

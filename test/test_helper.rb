@@ -1,4 +1,5 @@
-require 'cloudstack_cli'
-require 'minitest/unit'
-require 'minitest/autorun'
-require 'minitest/pride'
+require "cloudstack_client"
+
+require "minitest/spec"
+require "minitest/autorun"
+require "minitest/pride"
