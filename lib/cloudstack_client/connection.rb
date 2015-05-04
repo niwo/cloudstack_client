@@ -105,7 +105,7 @@ module CloudstackClient
         when 1
           return data['jobresult']
         when 2
-          raise JobError, "Request failed (#{data['jobresultcode']}). #{data['jobresult']}."
+          raise JobError, "Request failed (#{data['jobresultcode']}): #{data['jobresult']['errortext']}."
         end
 
         STDOUT.flush if @verbose
