@@ -69,13 +69,22 @@ module CloudstackClient
     end
 
     desc "console", "Cloudstack Client interactive shell"
+    option :api_version,
+      desc: 'API version to use',
+      default: CloudstackClient::Api::DEFAULT_API_VERSION
+    option :api_file,
+      desc: 'specify a custom API definition file'
     def console
-      puts "cloudstack_client version #{CloudstackClient::VERSION}"
+      cs_client = client(options)
+
+      print "cloudstack_client version #{CloudstackClient::VERSION}"
+      puts " (CloudStack API version #{cs_client.api.api_version})"
       puts '  try: list_virtual_machines state: "Started"'
+
       ARGV.clear
       env = options[:env] ? options[:env] : load_configuration.last
       Ripl.config[:prompt] = "#{env} >> "
-      Ripl.start binding: client.instance_eval('binding')
+      Ripl.start binding: cs_client.instance_eval('binding')
     end
 
     no_commands do

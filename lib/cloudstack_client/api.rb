@@ -3,9 +3,20 @@ require "msgpack"
 module CloudstackClient
   class Api
 
-    DEFAULT_API_VERSION = "4.2"
+    DEFAULT_API_VERSION = "4.5"
 
     attr_reader :commands
+    attr_reader :api_version
+
+    def self.versions
+      Dir["#{self.config_path}/*.msgpack"].map do |path|
+        File.basename(path, ".msgpack")
+      end
+    end
+
+    def self.config_path
+      File.expand_path("../../../config/", __FILE__)
+    end
 
     def initialize(options = {})
       if options[:api_file]
@@ -13,7 +24,10 @@ module CloudstackClient
         @api_version = File.basename(@api_file, ".msgpack")
       else
         @api_version = options[:api_version] || DEFAULT_API_VERSION
-        @api_file = File.expand_path("../../../config/#{@api_version}.msgpack", __FILE__)
+        unless Api.versions.include? @api_version
+          raise "API definition not found for #{@api_version}"
+        end
+        @api_file = File.join(Api.config_path, "#{@api_version}.msgpack")
       end
       @commands = load_commands
     end
