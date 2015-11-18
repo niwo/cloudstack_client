@@ -39,15 +39,16 @@ end
 
 ## Development
 
-### Generate new API configs
+### Generate/Update API versions
 
-New API configs can be genearted using the list_apis command.
+New API configs can be generated using the list_apis command.
 
 *Example:*
 
 ```bash
 # running against an CloudStack 4.5 API endpoint:
-$ cloudstack_client list_apis > config/4.5.msgpack
+$ cloudstack_client list_apis > data/4.5.json
+$ gzip data/4.5.json
 ```
 
 ### Interactive Console
