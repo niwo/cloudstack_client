@@ -1,5 +1,7 @@
 require "cloudstack_client/client"
 require "yaml"
+require "json"
+require 'pp'
 
 begin
   require "thor"
@@ -40,8 +42,8 @@ module CloudstackClient
     map %w(-v --version) => :version
 
     desc "list_apis", "list api commands using the Cloudstack API Discovery service"
-    option :format, default: 'msgpack',
-      enum: %w(msgpack json yaml), desc: "output format"
+    option :format, default: 'json',
+      enum: %w(json yaml), desc: "output format"
     option :pretty_print, default: true, type: :boolean,
       desc: "pretty print json output"
     option :remove_response, default: true, type: :boolean,
@@ -59,12 +61,10 @@ module CloudstackClient
       end
 
       print case options[:format]
-      when "json"
-        options[:pretty_print] ? JSON.pretty_generate(apis) : apis.to_json
       when "yaml"
         apis.to_yaml
       else
-        apis.to_msgpack
+        options[:pretty_print] ? JSON.pretty_generate(apis) : apis.to_json
       end
     end
 
@@ -84,7 +84,7 @@ module CloudstackClient
       ARGV.clear
       env = options[:env] ? options[:env] : load_configuration.last
       Ripl.config[:prompt] = "#{env} >> "
-      Ripl.start binding: cs_client.instance_eval('binding')
+      Ripl.start binding: cs_client.instance_eval{ binding }
     end
 
     no_commands do

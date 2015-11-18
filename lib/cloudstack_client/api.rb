@@ -1,4 +1,4 @@
-require "msgpack"
+require "zlib"
 
 module CloudstackClient
   class Api
@@ -9,25 +9,25 @@ module CloudstackClient
     attr_reader :api_version
 
     def self.versions
-      Dir["#{self.config_path}/*.msgpack"].map do |path|
-        File.basename(path, ".msgpack")
+      Dir["#{self.config_path}/*.json.gz"].map do |path|
+        File.basename(path, ".json.gz")
       end
     end
 
     def self.config_path
-      File.expand_path("../../../config/", __FILE__)
+      File.expand_path("../../../data/", __FILE__)
     end
 
     def initialize(options = {})
       if options[:api_file]
         @api_file = options[:api_file]
-        @api_version = File.basename(@api_file, ".msgpack")
+        @api_version = File.basename(@api_file, ".json")
       else
         @api_version = options[:api_version] || DEFAULT_API_VERSION
         unless Api.versions.include? @api_version
           raise "API definition not found for #{@api_version}"
         end
-        @api_file = File.join(Api.config_path, "#{@api_version}.msgpack")
+        @api_file = File.join(Api.config_path, "#{@api_version}.json.gz")
       end
       @commands = load_commands
     end
@@ -58,13 +58,17 @@ module CloudstackClient
     private
 
     def load_commands
+      commands = {}
       begin
-        api = MessagePack.unpack(IO.read @api_file)
+        api = Zlib::GzipReader.open(@api_file) do |gz|
+          JSON.parse(gz.read)
+        end
       rescue => e
         raise "Error: Unable to read file '#{@api_file}' : #{e.message}"
       end
-      commands = Hash.new
-      api.each { |command| commands[command["name"]] = command }
+      api.each do |command|
+        commands[command["name"]] = command
+      end
       commands
     end
 
