@@ -13,7 +13,17 @@ Install the cloudstack_client gem:
 $ gem install cloudstack_client
 ```
 
+## Features
+  - Dynamically builds API methods based on the lisApis function of CloudStack
+  - Command names are converted to match Ruby naming conventions (i.e. ListVirtualMachines becomes list_virtual_machines)
+  - Accepts Ruby style args passed to commands (i.e. list_all: true becomes listall=true)
+  - makes sure all required arguments are passed
+  - Removes unsupported arguments and arguments with nil values from commands
+
+
 ## Usage
+
+### Basic usage
 
 ```ruby
 require "cloudstack_client"
@@ -29,13 +39,32 @@ cs.list_virtual_machines(state: "running").each do |server|
 end
 ```
 
-## Features
+### Initialize with options
 
-  - Dynamically builds API methods based on the lisApis function of CloudStack
-  - Command names are converted to match Ruby naming conventions (i.e. ListVirtualMachines becomes list_virtual_machines)
-  - Accepts Ruby style args passed to commands (i.e. list_all: true becomes listall=true)
-  - makes sure all required arguments are passed
-  - Removes unsupported arguments and arguments with nil values from commands
+Load API definition file from a alternative path and set the version:
+
+```ruby
+cs = CloudstackClient::Client.new(
+  "https://cloudstack.local/client/api",
+  "API_KEY",
+  "API_SECRET",
+  {
+    api_path: "~/cloudstack",
+    api_version: "4.6"
+  }
+)
+```
+
+..or load the API definition directly from a file:
+
+```ruby
+cs = CloudstackClient::Client.new(
+  "https://cloudstack.local/client/api",
+  "API_KEY",
+  "API_SECRET",
+  { api_file: "~/cloudstack/4.6.json.gz" }
+)
+```
 
 ## Development
 

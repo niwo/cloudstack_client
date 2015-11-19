@@ -4,19 +4,19 @@ module CloudstackClient
   class Api
 
     DEFAULT_API_VERSION = "4.5"
-    DATA_PATH = File.expand_path("../../../data/", __FILE__)
+    API_PATH = File.expand_path("../../../data/", __FILE__)
 
     attr_reader :commands
-    attr_reader :api_version, :api_file, :data_path
+    attr_reader :api_version, :api_file, :api_path
 
-    def self.versions(data_path = DATA_PATH)
-      Dir[data_path + "/*.json.gz"].map do |path|
+    def self.versions(api_path = API_PATH)
+      Dir[api_path + "/*.json.gz"].map do |path|
         File.basename(path, ".json.gz")
       end
     end
 
     def initialize(options = {})
-      @data_path = options[:data_path] || DATA_PATH
+      set_api_path(options)
       set_api_version_and_file(options)
       load_commands
     end
@@ -57,18 +57,27 @@ module CloudstackClient
         @api_version = File.basename(@api_file, ".json.gz")
       else
         set_api_version(options)
-        @api_file = File.join(@data_path, "#{@api_version}.json.gz")
+        @api_file = File.join(@api_path, "#{@api_version}.json.gz")
+      end
+    end
+
+    def set_api_path(options)
+      @api_path = if options[:api_path]
+        File.expand_path(options[:api_path])
+      else
+        API_PATH
       end
     end
 
     def set_api_version(options)
       @api_version = options[:api_version] || DEFAULT_API_VERSION
-      unless Api.versions(@data_path).include? @api_version
-        raise "API definition not found for #{@api_version}" if options[:api_version]
-        if Api.versions(@data_path).size < 1
-          raise "no API file available in data_path '#{@data_path}'"
+      unless Api.versions(@api_path).include? @api_version
+        if options[:api_version]
+          raise "API definition not found for version '#{@api_version}' in api_path '#{@api_path}'"
+        elsif Api.versions(@api_path).size < 1
+          raise "no API file available in api_path '#{@api_path}'"
         else
-          @api_version = Api.versions(@data_path).last
+          @api_version = Api.versions(@api_path).last
         end
       end
       @api_version

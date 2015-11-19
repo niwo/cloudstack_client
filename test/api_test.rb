@@ -24,7 +24,7 @@ describe CloudstackClient::Api do
 
     it "must set correct api file of fake api when loaded with api_version option" do
       CloudstackClient::Api.new(
-        data_path: "#{File.expand_path File.dirname(__FILE__)}/data/",
+        api_path: "#{File.expand_path File.dirname(__FILE__)}/data/",
       ).api_file.must_equal "#{File.expand_path File.dirname(__FILE__)}/data/0.42.json.gz"
     end
   end
