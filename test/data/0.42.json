@@ -1,0 +1,15 @@
+[
+  {
+    "name": "noCommand",
+    "isasync": true,
+    "related": "nilCommand",
+    "params": [
+      {
+        "name": "noparam",
+        "type": "string",
+        "length": 255,
+        "required": true
+      }
+    ]
+  }
+]

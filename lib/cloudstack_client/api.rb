@@ -4,32 +4,21 @@ module CloudstackClient
   class Api
 
     DEFAULT_API_VERSION = "4.5"
+    DATA_PATH = File.expand_path("../../../data/", __FILE__)
 
     attr_reader :commands
-    attr_reader :api_version
+    attr_reader :api_version, :api_file, :data_path
 
-    def self.versions
-      Dir["#{self.config_path}/*.json.gz"].map do |path|
+    def self.versions(data_path = DATA_PATH)
+      Dir[data_path + "/*.json.gz"].map do |path|
         File.basename(path, ".json.gz")
       end
     end
 
-    def self.config_path
-      File.expand_path("../../../data/", __FILE__)
-    end
-
     def initialize(options = {})
-      if options[:api_file]
-        @api_file = options[:api_file]
-        @api_version = File.basename(@api_file, ".json")
-      else
-        @api_version = options[:api_version] || DEFAULT_API_VERSION
-        unless Api.versions.include? @api_version
-          raise "API definition not found for #{@api_version}"
-        end
-        @api_file = File.join(Api.config_path, "#{@api_version}.json.gz")
-      end
-      @commands = load_commands
+      @data_path = options[:data_path] || DATA_PATH
+      set_api_version_and_file(options)
+      load_commands
     end
 
     def command_supported?(command)
@@ -37,7 +26,11 @@ module CloudstackClient
     end
 
     def command_supports_param?(command, key)
-      @commands[command]["params"].detect { |p| p["name"] == key } ? true : false
+      if @commands[command]["params"].detect { |p| p["name"] == key }
+        true
+      else
+        false
+      end
     end
 
     def required_params(command)
@@ -51,25 +44,43 @@ module CloudstackClient
     end
 
     def missing_params_msg(command)
-      requ = required_params(command)
-      "#{command} requires the following parameter#{ 's' if requ.size > 1}: #{requ.join(', ')}"
+      "#{command} requires the following parameter" +
+        "#{ 's' if required_params(command).size > 1 }: " +
+        required_params(command).join(", ")
     end
 
     private
 
-    def load_commands
-      commands = {}
-      begin
-        api = Zlib::GzipReader.open(@api_file) do |gz|
-          JSON.parse(gz.read)
+    def set_api_version_and_file(options)
+      if options[:api_file]
+        @api_file = options[:api_file]
+        @api_version = File.basename(@api_file, ".json.gz")
+      else
+        set_api_version(options)
+        @api_file = File.join(@data_path, "#{@api_version}.json.gz")
+      end
+    end
+
+    def set_api_version(options)
+      @api_version = options[:api_version] || DEFAULT_API_VERSION
+      unless Api.versions(@data_path).include? @api_version
+        raise "API definition not found for #{@api_version}" if options[:api_version]
+        if Api.versions(@data_path).size < 1
+          raise "no API file available in data_path '#{@data_path}'"
+        else
+          @api_version = Api.versions(@data_path).last
         end
-      rescue => e
-        raise "Error: Unable to read file '#{@api_file}' : #{e.message}"
       end
-      api.each do |command|
-        commands[command["name"]] = command
-      end
-      commands
+      @api_version
+    end
+
+    def load_commands
+      @commands = {}
+      Zlib::GzipReader.open(@api_file) do |gz|
+        JSON.parse(gz.read)
+      end.each {|cmd| @commands[cmd["name"]] = cmd }
+    rescue => e
+      raise "Error: Unable to read file '#{@api_file}': #{e.message}"
     end
 
   end

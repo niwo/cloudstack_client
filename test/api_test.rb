@@ -5,12 +5,36 @@ describe CloudstackClient::Api do
     @api = CloudstackClient::Api.new
   end
 
+  describe "when the API is initialized" do
+    it "has to find the default version in available versions" do
+      CloudstackClient::Api.versions.include?(
+        CloudstackClient::Api::DEFAULT_API_VERSION
+      ).must_equal true
+    end
+
+    it "must raise exception for unavailable version" do
+      proc { CloudstackClient::Api.new(api_version: "0.0") }.must_raise RuntimeError
+    end
+
+    it "must set correct version of fake api file" do
+      CloudstackClient::Api.new(
+        api_file: "#{File.expand_path File.dirname(__FILE__)}/data/0.42.json.gz"
+      ).api_version.must_equal "0.42"
+    end
+
+    it "must set correct api file of fake api when loaded with api_version option" do
+      CloudstackClient::Api.new(
+        data_path: "#{File.expand_path File.dirname(__FILE__)}/data/",
+      ).api_file.must_equal "#{File.expand_path File.dirname(__FILE__)}/data/0.42.json.gz"
+    end
+  end
+
   describe "when commands are accessed" do
     it "must return a Hash" do
       @api.commands.class.must_equal Hash
     end
 
-    it "the Hash must have a key named 'listDomains'" do
+    it "must have a key named 'listDomains'" do
       @api.commands.has_key?('listDomains').must_equal true
     end
 

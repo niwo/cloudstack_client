@@ -22,10 +22,8 @@ end
 gc_stat_after = GC.stat
 memory_after = `ps -o rss= -p #{Process.pid}`.to_i/1024
 
-puts(
-  {
-    time: time.round(2),
-    gc_count: gc_stat_after[:count] - gc_stat_before[:count],
-    memory: "%dM" % (memory_after - memory_before)
-  }.to_json
-)
+puts({
+  time: time.round(2),
+  gc_count: gc_stat_after[:count] - gc_stat_before[:count],
+  memory: "%dM" % (memory_after - memory_before)
+}.to_json)
