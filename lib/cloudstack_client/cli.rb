@@ -1,7 +1,6 @@
 require "cloudstack_client/client"
 require "yaml"
 require "json"
-require 'pp'
 
 begin
   require "thor"

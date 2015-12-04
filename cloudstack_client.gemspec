@@ -26,5 +26,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency('ripl', '~> 0.7.0')
   gem.add_development_dependency('minitest', '~> 5.8.2')
 
-  gem.add_dependency('json', '~> 1.8.3')
+  gem.add_dependency('json_pure', '~> 1.8.3')
 end

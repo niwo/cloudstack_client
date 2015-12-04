@@ -1,4 +1,5 @@
 require "zlib"
+require "json"
 
 module CloudstackClient
   class Api
