@@ -73,6 +73,10 @@ module CloudstackClient
       default: CloudstackClient::Api::DEFAULT_API_VERSION
     option :api_file,
       desc: 'specify a custom API definition file'
+    option :pretty_print,
+      desc: 'pretty client output',
+      type: :numeric,
+      default: true
     def console
       cs_client = client(options)
 

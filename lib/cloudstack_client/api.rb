@@ -46,8 +46,8 @@ module CloudstackClient
 
     def missing_params_msg(command)
       "#{command} requires the following parameter" +
-        "#{ 's' if required_params(command).size > 1 }: " +
-        required_params(command).join(", ")
+      "#{ 's' if required_params(command).size > 1 }: " +
+      required_params(command).join(", ")
     end
 
     private
