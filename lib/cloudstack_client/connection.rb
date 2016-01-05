@@ -8,6 +8,7 @@ require "multi_json"
 
 module CloudstackClient
   class Connection
+    include Utils
 
     attr_accessor :api_url, :api_key, :secret_key, :verbose, :debug
     attr_accessor :async_poll_interval, :async_timeout
@@ -36,7 +37,7 @@ module CloudstackClient
         "#{key}=#{value}"
       end
 
-      debug_output MultiJson.dump(params, pretty: true) if @debug
+      print_debug_output MultiJson.dump(params, pretty: true) if @debug
 
       data = params_arr.join('&')
       signature = OpenSSL::HMAC.digest('sha1', @secret_key, data.downcase)
@@ -120,14 +121,6 @@ module CloudstackClient
 
     def max_tries
       (@async_timeout / @async_poll_interval).round
-    end
-
-    def debug_output(output, seperator = '-' * 80)
-      puts
-      puts seperator
-      puts output
-      puts seperator
-      puts
     end
 
   end
