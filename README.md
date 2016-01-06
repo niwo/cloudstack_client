@@ -14,12 +14,12 @@ $ gem install cloudstack_client
 ```
 
 ## Features
-  - Dynamically builds API methods based on the lisApis function of CloudStack
+  - Interactive console for playing with the CloudStack API: ```cloudstack_client console```
+  - Dynamically builds API methods based on the listApis function of CloudStack
   - Command names are converted to match Ruby naming conventions (i.e. ListVirtualMachines becomes list_virtual_machines)
-  - Accepts Ruby style args passed to commands (i.e. list_all: true becomes listall=true)
-  - makes sure all required arguments are passed
+  - Accepts Ruby Hash arguments passed to commands as options (i.e. list_all: true becomes listall=true)
+  - Makes sure all required arguments are passed
   - Removes unsupported arguments and arguments with nil values from commands
-
 
 ## Usage
 
@@ -41,7 +41,7 @@ end
 
 ### Initialize with options
 
-Load API definition file from a alternative path and set the version:
+*Load API definition file from a alternative path and set the version:*
 
 ```ruby
 cs = CloudstackClient::Client.new(
@@ -55,7 +55,7 @@ cs = CloudstackClient::Client.new(
 )
 ```
 
-..or load the API definition directly from a file:
+*..or load the API definition directly from a file:*
 
 ```ruby
 cs = CloudstackClient::Client.new(
@@ -64,6 +64,17 @@ cs = CloudstackClient::Client.new(
   "API_SECRET",
   { api_file: "~/cloudstack/4.6.json.gz" }
 )
+```
+
+### Interactive Console
+
+cloudstack_client comes with an interactive shell to test the client.
+
+*Example:*
+
+```bash
+$ cloudstack_client console -e prod
+prod >> list_virtual_machines
 ```
 
 ## Development
@@ -80,17 +91,6 @@ $ cloudstack_client list_apis > data/4.5.json
 $ gzip data/4.5.json
 ```
 
-### Interactive Console
-
-cloudstack_client comes with an interactive shell to test the client.
-
-*Example:*
-
-```bash
-$ cloudstack_client console -e prod
-prod >> list_virtual_machines
-```
-
 ## References
 -  [Apache CloudStack API documentation](http://cloudstack.apache.org/docs/api/)
 
@@ -104,6 +104,6 @@ prod >> list_virtual_machines
 
 ## License
 
-Copyright (c) 2014-2015, Nik Wolfgramm
+Copyright (c) 2014-2016, Nik Wolfgramm
 
 Released under the MIT License. See the [LICENSE](https://raw.github.com/niwo/cloudstack_client/master/LICENSE.txt) file for further details.
