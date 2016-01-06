@@ -1,5 +1,6 @@
-Gemfile.lock
 .bundle/*
 .bundle
+vendor
+vendor/*
 pkg/*
 pkg
