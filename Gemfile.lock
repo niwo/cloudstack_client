@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cloudstack_client (1.2.1)
+    cloudstack_client (1.2.2)
       multi_json (~> 1.11)
 
 GEM
