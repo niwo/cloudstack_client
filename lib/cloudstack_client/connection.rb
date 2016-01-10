@@ -73,7 +73,7 @@ module CloudstackClient
           return body.reject { |key, _| key == 'count' }.values.first
         elsif body.size == 1 && body.values.first.respond_to?(:keys)
           item = body.values.first
-          return item.is_a?(Array) ? item : []
+          return (item.is_a?(Array) || item.is_a?(Hash)) ? item : []
         else
           body.reject! { |key, _| key == 'count' } if body.key?('count')
           body.size == 0 ? [] : body
