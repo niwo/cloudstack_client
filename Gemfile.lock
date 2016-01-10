@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cloudstack_client (1.2.0)
+    cloudstack_client (1.2.1)
       multi_json (~> 1.11)
 
 GEM
@@ -24,3 +24,6 @@ DEPENDENCIES
   rake (~> 10.4)
   ripl (~> 0.7)
   thor (~> 0.19)
+
+BUNDLED WITH
+   1.11.2
