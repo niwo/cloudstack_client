@@ -33,8 +33,21 @@ module CloudstackClient
       params['apiKey'] = @api_key
 
       params_arr = params.sort.map do |key, value|
-        value = CGI.escape(value.to_s).gsub('+', '%20').gsub(' ','%20')
-        "#{key}=#{value}"
+        if value.is_a?(Hash)
+          param_map = ''
+          value.each_with_index do |(k, v), idx|
+            value_k = CGI.escape(k.to_s).gsub('+', '%20').gsub(' ','%20')
+            value_v = CGI.escape(v.to_s).gsub('+', '%20').gsub(' ','%20')
+            param_map << '&' if idx > 0
+            param_map << "#{key}[#{idx}].key=#{value_k}&"
+            param_map << "#{key}[#{idx}].value=#{value_v}"
+          end
+
+          param_map
+        else
+          value = CGI.escape(value.to_s).gsub('+', '%20').gsub(' ','%20')
+          "#{key}=#{value}"
+        end
       end
 
       print_debug_output MultiJson.dump(params, pretty: true) if @debug
