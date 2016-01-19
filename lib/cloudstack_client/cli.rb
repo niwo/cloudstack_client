@@ -82,7 +82,7 @@ module CloudstackClient
 
       print "cloudstack_client version #{CloudstackClient::VERSION}"
       puts " (CloudStack API version #{cs_client.api.api_version})"
-      puts '  try: list_virtual_machines state: "Started"'
+      puts "  try: list_virtual_machines state: \"running\""
 
       ARGV.clear
       env = options[:env] ? options[:env] : load_configuration.last

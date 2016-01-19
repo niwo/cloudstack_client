@@ -34,19 +34,12 @@ module CloudstackClient
 
       params_arr = params.sort.map do |key, value|
         if value.is_a?(Hash)
-          param_map = ''
-          value.each_with_index do |(k, v), idx|
-            value_k = CGI.escape(k.to_s).gsub('+', '%20').gsub(' ','%20')
-            value_v = CGI.escape(v.to_s).gsub('+', '%20').gsub(' ','%20')
-            param_map << '&' if idx > 0
-            param_map << "#{key}[#{idx}].key=#{value_k}&"
-            param_map << "#{key}[#{idx}].value=#{value_v}"
-          end
-
-          param_map
+          value.each_with_index.map do |(k, v), i|
+            "#{key}[#{i}].key=#{escape(k)}&" +
+            "#{key}[#{i}].value=#{escape(v)}"
+          end.join("&")
         else
-          value = CGI.escape(value.to_s).gsub('+', '%20').gsub(' ','%20')
-          "#{key}=#{value}"
+          "#{key}=#{escape(value)}"
         end
       end
 
@@ -80,7 +73,7 @@ module CloudstackClient
           "Response from server is not readable. Check if the API endpoint (#{@api_url}) is valid and accessible."
       end
 
-      if response.is_a? Net::HTTPOK
+      if response.is_a?(Net::HTTPOK)
         return body unless body.respond_to?(:keys)
         if body.size == 2 && body.key?('count')
           return body.reject { |key, _| key == 'count' }.values.first
@@ -134,6 +127,10 @@ module CloudstackClient
 
     def max_tries
       (@async_timeout / @async_poll_interval).round
+    end
+
+    def escape(input)
+      CGI.escape(input.to_s).gsub('+', '%20').gsub(' ','%20')
     end
 
   end
