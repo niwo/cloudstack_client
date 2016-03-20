@@ -9,5 +9,5 @@ before_install:
   - gem update --system
   - gem update bundler
 install:
-  - bundle install --deployment --path vendor/bundle
+  - bundle install
 cache: bundler
