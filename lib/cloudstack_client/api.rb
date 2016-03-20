@@ -1,5 +1,5 @@
 require "zlib"
-require "multi_json"
+require "json"
 
 module CloudstackClient
   class Api
@@ -87,7 +87,7 @@ module CloudstackClient
     def load_commands
       @commands = {}
       Zlib::GzipReader.open(@api_file) do |gz|
-        MultiJson.load(gz.read)
+        JSON.parse(gz.read)
       end.each {|cmd| @commands[cmd["name"]] = cmd }
     rescue => e
       raise "Error: Unable to read file '#{@api_file}': #{e.message}"

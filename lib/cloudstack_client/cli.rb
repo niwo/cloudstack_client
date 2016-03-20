@@ -1,6 +1,6 @@
 require "cloudstack_client/client"
 require "yaml"
-require "multi_json"
+require "json"
 
 begin
   require "thor"
@@ -63,7 +63,7 @@ module CloudstackClient
       when "yaml"
         apis.to_yaml
       else
-        MultiJson.dump(apis, pretty: options[:pretty_print])
+        options[:pretty_print] ? JSON.pretty_generate(apis) : JSON.generate(apis)
       end
     end
 

@@ -2,7 +2,7 @@
 
 require "cloudstack_client/api"
 require "benchmark"
-require "multi_json"
+require "json"
 
 GC.disable
 
@@ -23,7 +23,7 @@ gc_stat_after = GC.stat
 memory_after = `ps -o rss= -p #{Process.pid}`.to_i/1024
 
 puts(
-  MultiJson.dump(
+  JSON.generate(
     {
       time: time.round(2),
       gc_count: gc_stat_after[:count] - gc_stat_before[:count],

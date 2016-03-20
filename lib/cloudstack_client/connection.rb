@@ -4,7 +4,7 @@ require "uri"
 require "cgi"
 require "net/http"
 require "net/https"
-require "multi_json"
+require "json"
 
 module CloudstackClient
   class Connection
@@ -43,7 +43,7 @@ module CloudstackClient
         end
       end
 
-      print_debug_output MultiJson.dump(params, pretty: true) if @debug
+      print_debug_output JSON.pretty_generate(params) if @debug
 
       data = params_arr.join('&')
       signature = OpenSSL::HMAC.digest('sha1', @secret_key, data.downcase)
@@ -67,8 +67,8 @@ module CloudstackClient
       end
 
       begin
-        body = MultiJson.load(response.body).values.first
-      rescue MultiJson::ParseError
+        body = JSON.parse(response.body).values.first
+      rescue JSON::ParserError
         raise ParseError,
           "Response from server is not readable. Check if the API endpoint (#{@api_url}) is valid and accessible."
       end
