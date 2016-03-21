@@ -36,9 +36,13 @@ module CloudstackClient
     end
 
     def required_params(command)
-      @commands[command]["params"].map do |param|
+      self.params(command).map do |param|
         param["name"] if param["required"] == true
       end.compact
+    end
+
+    def params(command)
+      @commands[command]["params"]
     end
 
     def all_required_params?(command, args)
