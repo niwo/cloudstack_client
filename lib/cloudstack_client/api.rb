@@ -1,8 +1,10 @@
 require "zlib"
 require "json"
+require "cloudstack_client/utils"
 
 module CloudstackClient
   class Api
+    include Utils
 
     DEFAULT_API_VERSION = "4.5"
     API_PATH = File.expand_path("../../../data/", __FILE__)
@@ -23,15 +25,14 @@ module CloudstackClient
     end
 
     def command_supported?(command)
-      @commands.has_key? command
+      @commands.has_key? underscore_to_camel_case(command)
     end
 
     def command_supports_param?(command, key)
-      if @commands[command]["params"].detect { |p| p["name"] == key }
-        true
-      else
-        false
-      end
+      command = underscore_to_camel_case(command)
+      @commands[command]["params"].detect do |params|
+        params["name"] == key.to_s
+      end ? true : false
     end
 
     def required_params(command)

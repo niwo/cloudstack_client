@@ -8,6 +8,15 @@ module CloudstackClient
         tr("-", "_").downcase
     end
 
+    def underscore_to_camel_case(underscore)
+      if underscore.include? "_"
+        string = underscore.split('_').collect(&:capitalize).join
+        string[0].downcase + string[1..-1]
+      else
+        underscore
+      end
+    end
+
     def print_debug_output(output, seperator = '-' * 80)
       puts
       puts seperator
@@ -15,6 +24,6 @@ module CloudstackClient
       puts seperator
       puts
     end
-    
+
   end
 end

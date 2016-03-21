@@ -52,12 +52,24 @@ describe CloudstackClient::Api do
       @api.command_supported?('listVirtualMachines').must_equal true
     end
 
+    it "must respond positively for 'list_virtual_machines'" do
+      @api.command_supported?('list_virtual_machines').must_equal true
+    end
+
     it "must respond positively for 'createUser'" do
       @api.command_supported?('createUser').must_equal true
     end
 
+    it "must respond positively for 'create_user'" do
+      @api.command_supported?('create_user').must_equal true
+    end
+
     it "must respond netagively for 'listClowns'" do
       @api.command_supported?('listClowns').must_equal false
+    end
+
+    it "must respond netagively for 'list_clowns'" do
+      @api.command_supported?('list_clowns').must_equal false
     end
   end
 
