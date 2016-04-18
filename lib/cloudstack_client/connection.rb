@@ -33,11 +33,13 @@ module CloudstackClient
       params['apiKey'] = @api_key
 
       params_arr = params.sort.map do |key, value|
-        if value.is_a?(Hash)
-          value.each_with_index.map do |(k, v), i|
-            "#{key}[#{i}].key=#{escape(k)}&" +
-            "#{key}[#{i}].value=#{escape(v)}"
-          end.join("&")
+        # support for maps (Arrays of Hashes)
+        elsif value.is_a?(Array)
+          map = []
+          value.each_with_index do |items, i|
+            items.each {|k, v| map << "#{key}[#{i}].#{k}=#{escape(v)}"}
+          end
+          map.join("&")
         else
           "#{key}=#{escape(value)}"
         end
