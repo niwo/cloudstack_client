@@ -39,7 +39,7 @@ module CloudstackClient
           value.each_with_index do |items, i|
             items.each {|k, v| map << "#{key}[#{i}].#{k}=#{escape(v)}"}
           end
-          map.join("&")
+          map.sort.join("&")
         else
           "#{key}=#{escape(value)}"
         end
@@ -47,7 +47,7 @@ module CloudstackClient
 
       print_debug_output JSON.pretty_generate(params) if @debug
 
-      data = params_arr.join('&')
+      data = params_arr.sort.join('&')
       signature = OpenSSL::HMAC.digest('sha1', @secret_key, data.downcase)
       signature = Base64.encode64(signature).chomp
       signature = CGI.escape(signature)
