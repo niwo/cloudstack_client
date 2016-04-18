@@ -34,7 +34,7 @@ module CloudstackClient
 
       params_arr = params.sort.map do |key, value|
         # support for maps (Arrays of Hashes)
-        elsif value.is_a?(Array)
+        if value.is_a?(Array)
           map = []
           value.each_with_index do |items, i|
             items.each {|k, v| map << "#{key}[#{i}].#{k}=#{escape(v)}"}
