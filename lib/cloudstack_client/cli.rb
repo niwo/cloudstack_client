@@ -34,6 +34,19 @@ module CloudstackClient
       desc: 'enable debug output',
       type: :boolean
 
+    # rescue error globally
+    def self.start(given_args=ARGV, config={})
+      super
+    rescue => e
+      error_class = e.class.name.split('::')
+      if error_class.size == 2 && error_class.first == "CloudstackClient"
+        puts "\e[31mERROR\e[0m: #{error_class.last} - #{e.message}"
+        puts e.backtrace if ARGV.include? "--debug"
+      else
+        raise
+      end
+    end
+
     desc "version", "Print cloudstack_client version number"
     def version
       say "cloudstack_client version #{CloudstackClient::VERSION}"
@@ -123,7 +136,7 @@ module CloudstackClient
         end
 
         unless config.key?(:url) && config.key?(:api_key) && config.key?(:secret_key)
-          say "The environment #{env || '\'-\''} contains no valid data.", :red
+          say "The environment #{env || '\'-\''} does not contain all required keys.", :red
           exit 1
         end
         return config, env

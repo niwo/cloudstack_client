@@ -6,4 +6,5 @@ module CloudstackClient
   class ApiError < Error; end
   class JobError < Error; end
   class TimeoutError < Error; end
+  class InputError < Error; end
 end

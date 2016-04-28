@@ -13,15 +13,19 @@ module CloudstackClient
     attr_accessor :api_url, :api_key, :secret_key, :verbose, :debug
     attr_accessor :async_poll_interval, :async_timeout
 
+    DEF_POLL_INTERVAL = 2.0
+    DEF_ASYNC_TIMEOUT = 400
+
     def initialize(api_url, api_key, secret_key, options = {})
       @api_url = api_url
       @api_key = api_key
       @secret_key = secret_key
       @verbose = options[:quiet] ? false : true
       @debug = options[:debug] ? true : false
-      @async_poll_interval = options[:async_poll_interval] || 2.0
-      @async_timeout = options[:async_timeout] || 400
+      @async_poll_interval = options[:async_poll_interval] || DEF_POLL_INTERVAL
+      @async_timeout = options[:async_timeout] || DEF_ASYNC_TIMEOUT
       @options = options
+      validate_input!
     end
 
     ##
@@ -127,12 +131,20 @@ module CloudstackClient
 
     private
 
+    def validate_input!
+      raise InputError, "API URL not set." if @api_url == nil
+      raise InputError, "API KEY not set." if @api_key == nil
+      raise InputError, "API SECRET KEY not set." if @secret_key == nil
+      raise InputError, "ASYNC POLL INTERVAL must be at least 1." if @async_poll_interval < 1.0
+      raise InputError, "ASYNC TIMEOUT must be at least 60." if @async_timeout < 60
+    end
+
     def max_tries
       (@async_timeout / @async_poll_interval).round
     end
 
     def escape(input)
-      CGI.escape(input.to_s).gsub('+', '%20').gsub(' ','%20')
+      CGI.escape(input.to_s).gsub('+', '%20').gsub(' ', '%20')
     end
 
   end

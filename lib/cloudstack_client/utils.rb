@@ -17,11 +17,11 @@ module CloudstackClient
       end
     end
 
-    def print_debug_output(output, seperator = '-' * 80)
+    def print_debug_output(output, separator = '-' * 80)
       puts
-      puts seperator
+      puts separator
       puts output
-      puts seperator
+      puts separator
       puts
     end
 

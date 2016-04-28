@@ -31,7 +31,7 @@ require "cloudstack_client"
 cs = CloudstackClient::Client.new(
   "https://cloudstack.local/client/api",
   "API_KEY",
-  "API_SECRET"
+  "SECRET_KEY"
 )
 
 cs.list_virtual_machines(state: "running").each do |server|
@@ -47,7 +47,7 @@ end
 cs = CloudstackClient::Client.new(
   "https://cloudstack.local/client/api",
   "API_KEY",
-  "API_SECRET",
+  "SECRET_KEY",
   {
     api_path: "~/cloudstack",
     api_version: "4.6"
