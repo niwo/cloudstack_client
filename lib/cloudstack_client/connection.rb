@@ -44,6 +44,12 @@ module CloudstackClient
             items.each {|k, v| map << "#{key}[#{i}].#{k}=#{escape(v)}"}
           end
           map.sort.join("&")
+        # support for maps values of values (Hash values of Hashes)
+        elsif value.is_a?(Hash)
+          value.each_with_index.map do |(k, v), i|
+            "#{key}[#{i}].key=#{escape(k)}&" +
+            "#{key}[#{i}].value=#{escape(v)}"
+          end.join("&")
         else
           "#{key}=#{escape(value)}"
         end
