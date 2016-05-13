@@ -35,38 +35,12 @@ module CloudstackClient
     def send_request(params)
       params['response'] = 'json'
       params['apiKey'] = @api_key
-
-      params_arr = params.sort.map do |key, value|
-        # support for maps (Arrays of Hashes)
-        if value.is_a?(Array)
-          map = []
-          value.each_with_index do |items, i|
-            items.each {|k, v| map << "#{key}[#{i}].#{k}=#{escape(v)}"}
-          end
-          map.sort.join("&")
-        # support for maps values of values (Hash values of Hashes)
-        elsif value.is_a?(Hash)
-          value.each_with_index.map do |(k, v), i|
-            "#{key}[#{i}].key=#{escape(k)}&" +
-            "#{key}[#{i}].value=#{escape(v)}"
-          end.join("&")
-        else
-          "#{key}=#{escape(value)}"
-        end
-      end
-
       print_debug_output JSON.pretty_generate(params) if @debug
 
-      data = params_arr.sort.join('&')
-      signature = OpenSSL::HMAC.digest('sha1', @secret_key, data.downcase)
-      signature = Base64.encode64(signature).chomp
-      signature = CGI.escape(signature)
+      data = params_to_data(params)
+      uri = URI.parse "#{@api_url}?#{data}&signature=#{create_signature(data)}"
 
-      url = "#{@api_url}?#{data}&signature=#{signature}"
-
-      uri = URI.parse(url)
       http = Net::HTTP.new(uri.host, uri.port)
-
       if uri.scheme == 'https'
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -117,7 +91,6 @@ module CloudstackClient
 
       max_tries.times do
         data = send_request(params)
-
         print "." if @verbose
 
         case data['jobstatus']
@@ -128,7 +101,6 @@ module CloudstackClient
         end
 
         STDOUT.flush if @verbose
-
         sleep @async_poll_interval
       end
 
@@ -145,6 +117,35 @@ module CloudstackClient
       raise InputError, "ASYNC TIMEOUT must be at least 60." if @async_timeout < 60
     end
 
+    def params_to_data(params)
+      params_arr = params.sort.map do |key, value|
+        case value
+        when String
+          "#{key}=#{escape(value)}"
+        when Array # support for maps (Arrays of Hashes)
+          map = []
+          value.each_with_index do |items, i|
+            items.each {|k, v| map << "#{key}[#{i}].#{k}=#{escape(v)}"}
+          end
+          map.sort.join("&")
+        when Hash # support for maps values of values (Hash values of Hashes)
+          value.each_with_index.map do |(k, v), i|
+            "#{key}[#{i}].key=#{escape(k)}&" +
+            "#{key}[#{i}].value=#{escape(v)}"
+          end.join("&")
+        else
+          raise ParameterError, "unsupported parameter value type \"#{value.class}\""
+        end
+      end
+      params_arr.sort.join('&')
+    end
+
+    def create_signature(data)
+      signature = OpenSSL::HMAC.digest('sha1', @secret_key, data.downcase)
+      signature = Base64.encode64(signature).chomp
+      CGI.escape(signature)
+    end
+
     def max_tries
       (@async_timeout / @async_poll_interval).round
     end
@@ -153,5 +154,5 @@ module CloudstackClient
       CGI.escape(input.to_s).gsub('+', '%20').gsub(' ', '%20')
     end
 
-  end
-end
+  end # class
+end # module

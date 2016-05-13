@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cloudstack_client (1.4.1)
+    cloudstack_client (1.4.2)
 
 GEM
   remote: https://rubygems.org/
@@ -24,4 +24,4 @@ DEPENDENCIES
   thor (~> 0.19)
 
 BUNDLED WITH
-   1.11.2
+   1.12.0
