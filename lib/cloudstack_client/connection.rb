@@ -134,7 +134,8 @@ module CloudstackClient
             "#{key}[#{i}].value=#{escape(v)}"
           end.join("&")
         else
-          raise ParameterError, "unsupported parameter value type \"#{value.class}\""
+          raise ParameterError,
+            "unsupported parameter value type \"#{value.class}\""
         end
       end
       params_arr.sort.join('&')
