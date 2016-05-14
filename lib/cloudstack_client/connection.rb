@@ -120,8 +120,6 @@ module CloudstackClient
     def params_to_data(params)
       params_arr = params.sort.map do |key, value|
         case value
-        when String
-          "#{key}=#{escape(value)}"
         when Array # support for maps (Arrays of Hashes)
           map = []
           value.each_with_index do |items, i|
@@ -134,8 +132,7 @@ module CloudstackClient
             "#{key}[#{i}].value=#{escape(v)}"
           end.join("&")
         else
-          raise ParameterError,
-            "unsupported parameter value type \"#{value.class}\""
+          "#{key}=#{escape(value)}"
         end
       end
       params_arr.sort.join('&')
