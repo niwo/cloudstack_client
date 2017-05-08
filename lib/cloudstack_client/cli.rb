@@ -1,4 +1,5 @@
 require "cloudstack_client/client"
+require "cloudstack_client/configuration"
 require "yaml"
 require "json"
 
@@ -98,14 +99,13 @@ module CloudstackClient
       puts "  try: list_virtual_machines state: \"running\""
 
       ARGV.clear
-      env = options[:env] ? options[:env] : load_configuration.last
-      Ripl.config[:prompt] = "#{env} >> "
+      Ripl.config[:prompt] = "#{@config[:environment]} >> "
       Ripl.start binding: cs_client.instance_eval{ binding }
     end
 
     no_commands do
       def client(opts = {})
-        @config ||= load_configuration.first
+        @config ||= CloudstackClient::Configuration.load(options)
         @client ||= CloudstackClient::Client.new(
           @config[:url],
           @config[:api_key],
@@ -113,35 +113,6 @@ module CloudstackClient
           opts
         )
       end
-
-      def load_configuration(config_file = options[:config_file], env = options[:env])
-        unless File.exists?(config_file)
-          say "Configuration file #{config_file} not found.", :red
-          say "Please run 'cloudstack-cli environment add' to create one."
-          exit 1
-        end
-
-        begin
-          config = YAML::load(IO.read(config_file))
-        rescue
-          say "Can't load configuration from file #{config_file}.", :red
-          exit 1
-        end
-
-        if env ||= config[:default]
-          unless config = config[env]
-            say "Can't find environment #{env}.", :red
-            exit 1
-          end
-        end
-
-        unless config.key?(:url) && config.key?(:api_key) && config.key?(:secret_key)
-          say "The environment #{env || '\'-\''} does not contain all required keys.", :red
-          exit 1
-        end
-        return config, env
-      end
-
     end # no_commands
 
 	end # class

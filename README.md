@@ -92,7 +92,7 @@ $ gzip data/4.5.json
 ```
 
 ## References
--  [Apache CloudStack API documentation](http://cloudstack.apache.org/docs/api/)
+- [Apache CloudStack API documentation](http://cloudstack.apache.org/docs/api/)
 
 ## Contributing
 
@@ -104,6 +104,6 @@ $ gzip data/4.5.json
 
 ## License
 
-Copyright (c) 2014-2016, Nik Wolfgramm
+Copyright (c) 2014-2017, Nik Wolfgramm
 
 Released under the MIT License. See the [LICENSE](https://raw.github.com/niwo/cloudstack_client/master/LICENSE.txt) file for further details.
