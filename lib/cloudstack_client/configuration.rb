@@ -17,7 +17,7 @@ module CloudstackClient
           message += "\nMessage: #{e.message}"
           message += "\nBacktrace:\n\t#{e.backtrace.join("\n\t")}"
         end
-        raise message
+        raise ConfigurationError, message
       end
 
       if env ||= config[:default]
