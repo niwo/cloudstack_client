@@ -20,7 +20,7 @@ module CloudstackClient
         raise ConfigurationError, message
       end
 
-      if env ||= config[:default]
+      if env = configuration[:env] || config[:default]
         unless config = config[env]
           raise ConfigurationError, "Can't find environment #{env}."
         end
