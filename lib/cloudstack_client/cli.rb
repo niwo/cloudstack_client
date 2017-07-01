@@ -21,7 +21,7 @@ module CloudstackClient
     include Thor::Actions
 
     class_option :config_file,
-      default: CloudstackClient::Configuration.locate_config_file,
+      default: Configuration.locate_config_file,
       aliases: '-c',
       desc: 'location of your cloudstack-cli configuration file'
 
