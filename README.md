@@ -34,12 +34,12 @@ cs = CloudstackClient::Client.new(
   "SECRET_KEY"
 )
 
-cs.list_virtual_machines(state: "running").each do |server|
-  puts server["name"]
+cs.list_virtual_machines(state: "running").each do |vm|
+  puts vm["name"]
 end
 ```
 
-### Initialize with options
+### Advanced Options
 
 *Load API definition file from a alternative path and set the version:*
 
@@ -50,7 +50,7 @@ cs = CloudstackClient::Client.new(
   "SECRET_KEY",
   {
     api_path: "~/cloudstack",
-    api_version: "4.6"
+    api_version: "4.9"
   }
 )
 ```
@@ -64,6 +64,39 @@ cs = CloudstackClient::Client.new(
   "API_SECRET",
   { api_file: "~/cloudstack/4.6.json.gz" }
 )
+```
+
+### Using the configuration module
+
+The Configuration module of CloudstackClient make it easy to load CloudStack API settings from configuration files.
+Use it like this:
+
+```ruby
+require "cloudstack_client"
+require "cloudstack_client/configuration"
+
+# looks for ~/.cloudstack.yml per default
+config = CloudstackClient::Configuration.load
+cs = CloudstackClient::Client.new(config[:url], config[:api_key], config[:secret_key])
+```
+
+A configuration file supports multiple environments and looks like this:
+
+```yaml
+# default environment
+:default: production
+
+# production environment
+production:
+  :url: "https://my-cloudstack-server/client/api/"
+  :api_key: "cloudstack-api-key"
+  :secret_key: "cloudstack-api-secret"
+
+# test environment
+test:
+  :url: "http://my-cloudstack-testserver/client/api/"
+  :api_key: "cloudstack-api-key"
+  :secret_key: "cloudstack-api-secret"
 ```
 
 ### Interactive Console

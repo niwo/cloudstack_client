@@ -23,5 +23,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency('rake', '~> 12.0')
   gem.add_development_dependency('thor', '~> 0.19')
   gem.add_development_dependency('ripl', '~> 0.7')
-  gem.add_development_dependency('minitest', '~> 5.9')
+  gem.add_development_dependency('minitest', '~> 5.10')
 end

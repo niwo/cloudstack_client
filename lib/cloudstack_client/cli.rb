@@ -7,15 +7,13 @@ begin
   require "thor"
   require "ripl"
 rescue LoadError => e
-  missing_gem = if e.message =~ /thor/
-    "thor"
-  elsif e.message =~ /ripl/
-    "ripl"
-  else
-    raise
+  %w(thor ripl).each do |gem|
+    if e.message =~ /#{gem}/
+      puts "Please install the #{gem} gem first ('gem install #{gem}')."
+      exit 1
+    end
   end
-  puts "Please install the #{missing_gem} gem first ('gem install #{missing_gem}')."
-  exit 1
+  raise e.message
 end
 
 module CloudstackClient
@@ -23,7 +21,7 @@ module CloudstackClient
     include Thor::Actions
 
     class_option :config_file,
-      default: File.join(Dir.home, '.cloudstack-cli.yml'),
+      default: CloudstackClient::Configuration.locate_config_file,
       aliases: '-c',
       desc: 'location of your cloudstack-cli configuration file'
 
@@ -89,7 +87,7 @@ module CloudstackClient
       desc: 'specify a custom API definition file'
     option :pretty_print,
       desc: 'pretty client output',
-      type: :numeric,
+      type: :boolean,
       default: true
     def console
       cs_client = client(options)
