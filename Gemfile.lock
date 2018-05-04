@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cloudstack_client (1.5.3)
+    cloudstack_client (1.5.4)
 
 GEM
   remote: https://rubygems.org/
