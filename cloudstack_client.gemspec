@@ -20,8 +20,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.rdoc_options  = %w[--line-numbers --inline-source]
 
-  gem.add_development_dependency('rake', '~> 12.0')
-  gem.add_development_dependency('thor', '~> 0.19')
+  gem.add_development_dependency('rake', '~> 12.3')
+  gem.add_development_dependency('thor', '~> 0.20')
   gem.add_development_dependency('ripl', '~> 0.7')
-  gem.add_development_dependency('minitest', '~> 5.10')
+  gem.add_development_dependency('minitest', '~> 5.11')
 end
