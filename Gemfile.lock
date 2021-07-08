@@ -1,27 +1,27 @@
 PATH
   remote: .
   specs:
-    cloudstack_client (1.5.7)
+    cloudstack_client (1.5.8)
 
 GEM
   remote: https://rubygems.org/
   specs:
     bond (0.5.1)
-    minitest (5.13.0)
-    rake (13.0.1)
+    minitest (5.14.4)
+    rake (13.0.5)
     ripl (0.7.1)
       bond (~> 0.5.1)
-    thor (1.0.1)
+    thor (1.1.0)
 
 PLATFORMS
-  ruby
+  x86_64-linux
 
 DEPENDENCIES
   cloudstack_client!
-  minitest (~> 5.11)
+  minitest (~> 5.14)
   rake (~> 13.0)
   ripl (~> 0.7)
-  thor (~> 1.0)
+  thor (~> 1.1)
 
 BUNDLED WITH
-   1.17.1
+   2.2.15
