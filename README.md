@@ -1,7 +1,7 @@
 # cloudstack_client
 
 [![Gem Version](https://badge.fury.io/rb/cloudstack_client.png)](http://badge.fury.io/rb/cloudstack_client)
- [![Build Status](https://travis-ci.org/niwo/cloudstack_client.svg?branch=master)](https://travis-ci.org/niwo/cloudstack_client)
+ [![Build Status](https://travis-ci.com/niwo/cloudstack_client.svg?branch=master)](https://travis-ci.com/niwo/cloudstack_client)
 
 A CloudStack API client written in Ruby.
 
