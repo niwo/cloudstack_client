@@ -83,9 +83,9 @@ config = CloudstackClient::Configuration.load
 cs = CloudstackClient::Client.new(config[:url], config[:api_key], config[:secret_key])
 ```
 
-A configuration file supports multiple environments.
+#### Configuration files
 
-#### Example
+Configuration files support multiple environments (i.e. `~/.cloudstack.yml`):
 
 ```yaml
 # default environment
@@ -119,9 +119,9 @@ prod >> list_virtual_machines
 
 ### Generate or update API definitions
 
-New API definitions can be generated using the list_apis command.
+New API definitions can be generated using the `list_apis` command.
 
-#### Example
+#### Example
 
 ```bash
 # running against a CloudStack 4.15 API endpoint:
