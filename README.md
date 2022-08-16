@@ -104,6 +104,18 @@ test:
   :secret_key: "cloudstack-api-secret"
 ```
 
+### Configuration options
+You can pass `options` as 4th argument in `CloudstackClient::Client.new`. All its keys are optional.
+
+```ruby
+options = {
+  symbolize_keys: true, # pass symbolize_names: true in JSON#parse for Cloudstack responses, default: false
+  host: 'localhost', # custom host header to be used in Net::Http. May be useful when Cloudstack is set up locally via docker (i.e. Cloudstack-simulator), default: parsed from config[:url] via Net::Http
+  read_timeout: 10 # timeout in seconds of a connection to the Cloudstack, default: 60
+}
+cs = CloudstackClient::Client.new(config[:url], config[:api_key], config[:secret_key], options)
+```
+
 ### Interactive Console
 
 cloudstack_client comes with an interactive console.

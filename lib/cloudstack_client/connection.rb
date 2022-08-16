@@ -9,11 +9,12 @@ module CloudstackClient
   class Connection
     include Utils
 
-    attr_accessor :api_url, :api_key, :secret_key, :verbose, :debug
+    attr_accessor :api_url, :api_key, :secret_key, :verbose, :debug, :symbolize_keys, :host, :read_timeout
     attr_accessor :async_poll_interval, :async_timeout
 
     DEF_POLL_INTERVAL = 2.0
     DEF_ASYNC_TIMEOUT = 400
+    DEF_REQ_TIMEOUT = 60
 
     def initialize(api_url, api_key, secret_key, options = {})
       @api_url = api_url
@@ -21,6 +22,9 @@ module CloudstackClient
       @secret_key = secret_key
       @verbose = options[:quiet] ? false : true
       @debug = options[:debug] ? true : false
+      @symbolize_keys = options[:symbolize_keys] ? true : false
+      @host = options[:host]
+      @read_timeout = options[:read_timeout] || DEF_REQ_TIMEOUT
       @async_poll_interval = options[:async_poll_interval] || DEF_POLL_INTERVAL
       @async_timeout = options[:async_timeout] || DEF_ASYNC_TIMEOUT
       @options = options
@@ -31,7 +35,7 @@ module CloudstackClient
     # Sends a synchronous request to the CloudStack API and returns the response as a Hash.
     #
 
-    def send_request(params)
+    def send_request(params, symbolize_keys = @symbolize_keys)
       params['response'] = 'json'
       params['apiKey'] = @api_key
       print_debug_output JSON.pretty_generate(params) if @debug
@@ -44,29 +48,33 @@ module CloudstackClient
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
+      http.read_timeout = @read_timeout
 
       begin
-        response = http.request(Net::HTTP::Get.new(uri.request_uri))
+        req = Net::HTTP::Get.new(uri.request_uri)
+        req['Host'] = host if host.present?
+        response = http.request(req)
       rescue
         raise ConnectionError, "API URL \'#{@api_url}\' is not reachable."
       end
 
       begin
-        body = JSON.parse(response.body).values.first
+        body = JSON.parse(response.body, symbolize_names: symbolize_keys).values.first
       rescue JSON::ParserError
         raise ParseError,
           "Response from server is not readable. Check if the API endpoint (#{@api_url}) is valid and accessible."
       end
 
+      count_key = symbolize_keys ? :count : 'count'
       if response.is_a?(Net::HTTPOK)
         return body unless body.respond_to?(:keys)
-        if body.size == 2 && body.key?('count')
-          return body.reject { |key, _| key == 'count' }.values.first
+        if body.size == 2 && body.key?(count_key)
+          return body.reject { |key, _| key == count_key }.values.first
         elsif body.size == 1 && body.values.first.respond_to?(:keys)
           item = body.values.first
           return (item.is_a?(Array) || item.is_a?(Hash)) ? item : []
         else
-          body.reject! { |key, _| key == 'count' } if body.key?('count')
+          body.reject! { |key, _| key == count_key } if body.key?(count_key)
           body.size == 0 ? [] : body
         end
       else
@@ -81,7 +89,7 @@ module CloudstackClient
     # The contents of the 'jobresult' element are returned upon completion of the command.
 
     def send_async_request(params)
-      data = send_request(params)
+      data = send_request(params, false)
 
       params = {
         'command' => 'queryAsyncJobResult',
@@ -89,7 +97,7 @@ module CloudstackClient
       }
 
       max_tries.times do
-        data = send_request(params)
+        data = send_request(params, false)
         print "." if @verbose
 
         case data['jobstatus']
