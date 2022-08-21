@@ -35,7 +35,7 @@ module CloudstackClient
     # Sends a synchronous request to the CloudStack API and returns the response as a Hash.
     #
 
-    def send_request(params, symbolize_keys = @symbolize_keys)
+    def send_request(params)
       params['response'] = 'json'
       params['apiKey'] = @api_key
       print_debug_output JSON.pretty_generate(params) if @debug
@@ -59,26 +59,25 @@ module CloudstackClient
       end
 
       begin
-        body = JSON.parse(response.body, symbolize_names: symbolize_keys).values.first
+        body = JSON.parse(response.body, symbolize_names: @symbolize_keys).values.first
       rescue JSON::ParserError
         raise ParseError,
-          "Response from server is not readable. Check if the API endpoint (#{@api_url}) is valid and accessible."
+              "Response from server is not readable. Check if the API endpoint (#{@api_url}) is valid and accessible."
       end
 
-      count_key = symbolize_keys ? :count : 'count'
       if response.is_a?(Net::HTTPOK)
         return body unless body.respond_to?(:keys)
-        if body.size == 2 && body.key?(count_key)
-          return body.reject { |key, _| key == count_key }.values.first
+        if body.size == 2 && body.key?(k('count'))
+          return body.reject { |key, _| key == k('count') }.values.first
         elsif body.size == 1 && body.values.first.respond_to?(:keys)
           item = body.values.first
           return (item.is_a?(Array) || item.is_a?(Hash)) ? item : []
         else
-          body.reject! { |key, _| key == count_key } if body.key?(count_key)
+          body.reject! { |key, _| key == k('count') } if body.key?(k('count'))
           body.size == 0 ? [] : body
         end
       else
-        message = body['errortext'] rescue body
+        message = body[k('errortext')] rescue body
         raise ApiError, "Status #{response.code}: #{message}."
       end
     end
@@ -89,22 +88,22 @@ module CloudstackClient
     # The contents of the 'jobresult' element are returned upon completion of the command.
 
     def send_async_request(params)
-      data = send_request(params, false)
+      data = send_request(params)
 
       params = {
         'command' => 'queryAsyncJobResult',
-        'jobid' => data['jobid']
+        'jobid' => data[k('jobid')]
       }
 
       max_tries.times do
-        data = send_request(params, false)
+        data = send_request(params)
         print "." if @verbose
 
-        case data['jobstatus']
+        case data[k('jobstatus')]
         when 1
-          return data['jobresult']
+          return data[k('jobresult')]
         when 2
-          raise JobError, "Request failed (#{data['jobresultcode']}): #{data['jobresult']['errortext']}."
+          raise JobError, "Request failed (#{data[k('jobresultcode')]}): #{data[k('jobresult')][k('errortext')]}."
         end
 
         STDOUT.flush if @verbose
@@ -136,7 +135,7 @@ module CloudstackClient
         when Hash # support for maps values of values (Hash values of Hashes)
           value.each_with_index.map do |(k, v), i|
             "#{key}[#{i}].key=#{escape(k)}&" +
-            "#{key}[#{i}].value=#{escape(v)}"
+              "#{key}[#{i}].value=#{escape(v)}"
           end.join("&")
         else
           "#{key}=#{escape(value)}"
@@ -158,6 +157,11 @@ module CloudstackClient
     def escape(input)
       CGI.escape(input.to_s).gsub('+', '%20').gsub(' ', '%20')
     end
+
+    def symbolized_key(name)
+      @symbolize_keys ? name.to_sym : name
+    end
+    alias_method :k, :symbolized_key
 
   end # class
 end # module
