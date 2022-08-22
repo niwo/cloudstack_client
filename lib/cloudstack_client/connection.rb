@@ -9,11 +9,12 @@ module CloudstackClient
   class Connection
     include Utils
 
-    attr_accessor :api_url, :api_key, :secret_key, :verbose, :debug
+    attr_accessor :api_url, :api_key, :secret_key, :verbose, :debug, :symbolize_keys, :host, :read_timeout
     attr_accessor :async_poll_interval, :async_timeout
 
     DEF_POLL_INTERVAL = 2.0
     DEF_ASYNC_TIMEOUT = 400
+    DEF_REQ_TIMEOUT = 60
 
     def initialize(api_url, api_key, secret_key, options = {})
       @api_url = api_url
@@ -21,6 +22,9 @@ module CloudstackClient
       @secret_key = secret_key
       @verbose = options[:quiet] ? false : true
       @debug = options[:debug] ? true : false
+      @symbolize_keys = options[:symbolize_keys] ? true : false
+      @host = options[:host]
+      @read_timeout = options[:read_timeout] || DEF_REQ_TIMEOUT
       @async_poll_interval = options[:async_poll_interval] || DEF_POLL_INTERVAL
       @async_timeout = options[:async_timeout] || DEF_ASYNC_TIMEOUT
       @options = options
@@ -44,33 +48,36 @@ module CloudstackClient
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
+      http.read_timeout = @read_timeout
 
       begin
-        response = http.request(Net::HTTP::Get.new(uri.request_uri))
+        req = Net::HTTP::Get.new(uri.request_uri)
+        req['Host'] = host if host.present?
+        response = http.request(req)
       rescue
         raise ConnectionError, "API URL \'#{@api_url}\' is not reachable."
       end
 
       begin
-        body = JSON.parse(response.body).values.first
+        body = JSON.parse(response.body, symbolize_names: @symbolize_keys).values.first
       rescue JSON::ParserError
         raise ParseError,
-          "Response from server is not readable. Check if the API endpoint (#{@api_url}) is valid and accessible."
+              "Response from server is not readable. Check if the API endpoint (#{@api_url}) is valid and accessible."
       end
 
       if response.is_a?(Net::HTTPOK)
         return body unless body.respond_to?(:keys)
-        if body.size == 2 && body.key?('count')
-          return body.reject { |key, _| key == 'count' }.values.first
+        if body.size == 2 && body.key?(k('count'))
+          return body.reject { |key, _| key == k('count') }.values.first
         elsif body.size == 1 && body.values.first.respond_to?(:keys)
           item = body.values.first
           return (item.is_a?(Array) || item.is_a?(Hash)) ? item : []
         else
-          body.reject! { |key, _| key == 'count' } if body.key?('count')
+          body.reject! { |key, _| key == k('count') } if body.key?(k('count'))
           body.size == 0 ? [] : body
         end
       else
-        message = body['errortext'] rescue body
+        message = body[k('errortext')] rescue body
         raise ApiError, "Status #{response.code}: #{message}."
       end
     end
@@ -85,18 +92,18 @@ module CloudstackClient
 
       params = {
         'command' => 'queryAsyncJobResult',
-        'jobid' => data['jobid']
+        'jobid' => data[k('jobid')]
       }
 
       max_tries.times do
         data = send_request(params)
         print "." if @verbose
 
-        case data['jobstatus']
+        case data[k('jobstatus')]
         when 1
-          return data['jobresult']
+          return data[k('jobresult')]
         when 2
-          raise JobError, "Request failed (#{data['jobresultcode']}): #{data['jobresult']['errortext']}."
+          raise JobError, "Request failed (#{data[k('jobresultcode')]}): #{data[k('jobresult')][k('errortext')]}."
         end
 
         STDOUT.flush if @verbose
@@ -128,7 +135,7 @@ module CloudstackClient
         when Hash # support for maps values of values (Hash values of Hashes)
           value.each_with_index.map do |(k, v), i|
             "#{key}[#{i}].key=#{escape(k)}&" +
-            "#{key}[#{i}].value=#{escape(v)}"
+              "#{key}[#{i}].value=#{escape(v)}"
           end.join("&")
         else
           "#{key}=#{escape(value)}"
@@ -150,6 +157,11 @@ module CloudstackClient
     def escape(input)
       CGI.escape(input.to_s).gsub('+', '%20').gsub(' ', '%20')
     end
+
+    def symbolized_key(name)
+      @symbolize_keys ? name.to_sym : name
+    end
+    alias_method :k, :symbolized_key
 
   end # class
 end # module
