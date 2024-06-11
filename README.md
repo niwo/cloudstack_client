@@ -155,6 +155,4 @@ $ gzip data/4.15.json
 
 ## License
 
-Copyright (c) 2014-2021, Nik Wolfgramm
-
 Released under the MIT License. See the [LICENSE](https://raw.github.com/niwo/cloudstack_client/master/LICENSE.txt) file for further details.
