@@ -155,7 +155,10 @@ module CloudstackClient
     end
 
     def escape(input)
-      CGI.escape(input.to_s).gsub('+', '%20').gsub(' ', '%20')
+      CGI.escape(input.to_s)
+        .gsub('+', '%20')
+        .gsub(' ', '%20')
+        .gsub('%2A', '*')
     end
 
     def symbolized_key(name)
