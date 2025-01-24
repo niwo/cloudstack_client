@@ -5,7 +5,7 @@ module CloudstackClient
 
     def self.load(configuration)
       file = configuration[:config_file] || Configuration.locate_config_file
-      unless File.exists?(file)
+      unless File.exist?(file)
         raise ConfigurationError, "Configuration file '#{file}' not found."
       end
 
@@ -37,7 +37,7 @@ module CloudstackClient
     def self.locate_config_file
       %w(.cloudstack .cloudstack-cli).each do |file|
         file = File.join(Dir.home, "#{file}.yml")
-        return file if File.exists?(file)
+        return file if File.exist?(file)
       end
       nil
     end
