@@ -35,7 +35,7 @@ module CloudstackClient
     # Sends a synchronous request to the CloudStack API and returns the response as a Hash.
     #
 
-    def send_request(params)
+    def send_request(params, opts = {})
       params['response'] = 'json'
       params['apiKey'] = @api_key
       print_debug_output JSON.pretty_generate(params) if @debug
@@ -68,12 +68,12 @@ module CloudstackClient
       if response.is_a?(Net::HTTPOK)
         return body unless body.respond_to?(:keys)
         if body.size == 2 && body.key?(k('count'))
-          return body.reject { |key, _| key == k('count') }.values.first
+          return opts[:include_count] ? body : body.reject { |key, _| key == k('count') }.values.first
         elsif body.size == 1 && body.values.first.respond_to?(:keys)
           item = body.values.first
           return (item.is_a?(Array) || item.is_a?(Hash)) ? item : []
         else
-          body.reject! { |key, _| key == k('count') } if body.key?(k('count'))
+          body.reject! { |key, _| key == k('count') } if body.key?(k('count')) && !opts[:include_count]
           body.size == 0 ? [] : body
         end
       else
@@ -87,8 +87,8 @@ module CloudstackClient
     #
     # The contents of the 'jobresult' element are returned upon completion of the command.
 
-    def send_async_request(params)
-      data = send_request(params)
+    def send_async_request(params, **opts)
+      data = send_request(params, opts)
 
       params = {
         'command' => 'queryAsyncJobResult',

@@ -68,6 +68,21 @@ cs = CloudstackClient::Client.new(
 )
 ```
 
+### Pagination and Response Options
+
+When working with paginated responses, you can include the total count in the API response:
+
+```ruby
+# Get paginated results with count information
+vms = cs.list_virtual_machines({ page: 1, pagesize: 10 }, { include_count: true })
+total_count = vms[:count]
+items = vms[:virtualmachine]
+
+# Default behavior (without count)
+vms = cs.list_virtual_machines(page: 1, pagesize: 10)
+# Returns just the items array
+```
+
 ### Using the configuration module
 
 The configuration module of CloudstackClient makes it easy to load CloudStack API settings from configuration files.
