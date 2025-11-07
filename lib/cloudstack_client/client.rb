@@ -34,10 +34,11 @@ module CloudstackClient
             raise ParameterError, @api.missing_params_msg(command["name"])
           end
 
+
           if command["isasync"] == false || options[:sync]
-            send_request(params)
+            send_request(params, options)
           else
-            send_async_request(params)
+            send_async_request(params, options)
           end
         end
       end
