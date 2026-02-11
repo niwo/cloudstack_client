@@ -61,6 +61,7 @@ module CloudstackClient
         retries += 1
         if retries < @request_retries
           sleep(retries) # incremental back-off
+          print "." if @verbose
           retry
         end
         raise ConnectionError, "API URL \'#{@api_url}\' is not reachable (after #{retries} attempt#{'s' if retries > 1}): #{e.message}"
