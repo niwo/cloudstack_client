@@ -10,11 +10,12 @@ module CloudstackClient
     include Utils
 
     attr_accessor :api_url, :api_key, :secret_key, :verbose, :debug, :symbolize_keys, :host, :read_timeout
-    attr_accessor :async_poll_interval, :async_timeout
+    attr_accessor :async_poll_interval, :async_timeout, :request_retries
 
     DEF_POLL_INTERVAL = 2.0
     DEF_ASYNC_TIMEOUT = 400
     DEF_REQ_TIMEOUT = 60
+    DEF_REQUEST_RETRIES = 1
 
     def initialize(api_url, api_key, secret_key, options = {})
       @api_url = api_url
@@ -27,6 +28,7 @@ module CloudstackClient
       @read_timeout = options[:read_timeout] || DEF_REQ_TIMEOUT
       @async_poll_interval = options[:async_poll_interval] || DEF_POLL_INTERVAL
       @async_timeout = options[:async_timeout] || DEF_ASYNC_TIMEOUT
+      @request_retries = options[:request_retries] || DEF_REQUEST_RETRIES
       @options = options
       validate_input!
     end
@@ -50,12 +52,19 @@ module CloudstackClient
       end
       http.read_timeout = @read_timeout
 
+      retries = 0
       begin
         req = Net::HTTP::Get.new(uri.request_uri)
         req['Host'] = host if host.present?
         response = http.request(req)
-      rescue
-        raise ConnectionError, "API URL \'#{@api_url}\' is not reachable."
+      rescue => e
+        retries += 1
+        if retries < @request_retries
+          sleep(retries) # incremental back-off
+          print "." if @verbose
+          retry
+        end
+        raise ConnectionError, "API URL \'#{@api_url}\' is not reachable (after #{retries} attempt#{'s' if retries > 1}): #{e.message}"
       end
 
       begin
@@ -87,7 +96,7 @@ module CloudstackClient
     #
     # The contents of the 'jobresult' element are returned upon completion of the command.
 
-    def send_async_request(params, **opts)
+    def send_async_request(params, opts = {})
       data = send_request(params, opts)
 
       params = {
@@ -121,6 +130,7 @@ module CloudstackClient
       raise InputError, "API SECRET KEY not set." if @secret_key == nil
       raise InputError, "ASYNC POLL INTERVAL must be at least 1." if @async_poll_interval < 1.0
       raise InputError, "ASYNC TIMEOUT must be at least 60." if @async_timeout < 60
+      raise InputError, "REQUEST RETRIES must be at least 1." if @request_retries < 1
     end
 
     def params_to_data(params)
