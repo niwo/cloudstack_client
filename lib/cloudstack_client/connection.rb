@@ -97,6 +97,10 @@ module CloudstackClient
     # The contents of the 'jobresult' element are returned upon completion of the command.
 
     def send_async_request(params, opts = {})
+      request_timeout = opts[:async_timeout] || @async_timeout
+      poll_interval = opts[:async_poll_interval] || @async_poll_interval
+      validate_async_timeouts!(request_timeout, poll_interval)
+
       data = send_request(params, opts)
 
       params = {
@@ -104,7 +108,7 @@ module CloudstackClient
         'jobid' => data[k('jobid')]
       }
 
-      max_tries.times do
+      max_tries(request_timeout, poll_interval).times do
         data = send_request(params)
         print "." if @verbose
 
@@ -116,7 +120,7 @@ module CloudstackClient
         end
 
         STDOUT.flush if @verbose
-        sleep @async_poll_interval
+        sleep poll_interval
       end
 
       raise TimeoutError, "Asynchronous request timed out."
@@ -128,9 +132,13 @@ module CloudstackClient
       raise InputError, "API URL not set." if @api_url == nil
       raise InputError, "API KEY not set." if @api_key == nil
       raise InputError, "API SECRET KEY not set." if @secret_key == nil
-      raise InputError, "ASYNC POLL INTERVAL must be at least 1." if @async_poll_interval < 1.0
-      raise InputError, "ASYNC TIMEOUT must be at least 60." if @async_timeout < 60
+      validate_async_timeouts!(@async_timeout, @async_poll_interval)
       raise InputError, "REQUEST RETRIES must be at least 1." if @request_retries < 1
+    end
+
+    def validate_async_timeouts!(timeout, interval)
+      raise InputError, "ASYNC POLL INTERVAL must be at least 1." if interval < 1.0
+      raise InputError, "ASYNC TIMEOUT must be at least 60." if timeout < 60
     end
 
     def params_to_data(params)
@@ -160,8 +168,8 @@ module CloudstackClient
       CGI.escape(signature)
     end
 
-    def max_tries
-      (@async_timeout / @async_poll_interval).round
+    def max_tries(timeout, interval)
+      (timeout / interval).round
     end
 
     def escape(input)

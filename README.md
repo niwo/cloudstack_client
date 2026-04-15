@@ -133,6 +133,13 @@ options = {
 cs = CloudstackClient::Client.new(config[:url], config[:api_key], config[:secret_key], options)
 ```
 
+For a single call you can override defaults on the **second** hash (client options), without changing the client instance:
+
+```ruby
+cs.deploy_virtual_machine({ zoneid: "...", serviceofferingid: "...", templateid: "..." },
+                          async_timeout: 600, async_poll_interval: 5)
+```
+
 ### Interactive Console
 
 cloudstack_client comes with an interactive console.
