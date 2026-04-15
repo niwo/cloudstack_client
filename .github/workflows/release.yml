@@ -25,6 +25,15 @@ jobs:
       - name: Run tests
         run: bundle exec rake test
 
+      - name: Ensure version is bumped
+        run: |
+          CURRENT_VERSION="$(ruby -Ilib -e "require 'cloudstack_client/version'; puts CloudstackClient::VERSION")"
+          LATEST_JSON="$(curl -fsSL https://rubygems.org/api/v1/versions/cloudstack_client/latest.json || true)"
+          if [ -n "$LATEST_JSON" ]; then
+            LATEST_VERSION="$(printf '%s' "$LATEST_JSON" | ruby -rjson -e "puts JSON.parse(STDIN.read)['version']")"
+            ruby -e "require 'rubygems/version'; current = Gem::Version.new('$CURRENT_VERSION'); latest = Gem::Version.new('$LATEST_VERSION'); abort(\"Version must be bumped before building (current=#{current}, latest=#{latest})\") unless current > latest"
+          fi
+
       - name: Build gem
         run: bundle exec rake build
 
@@ -42,9 +51,6 @@ jobs:
         with:
           ruby-version: '3.2'
           bundler-cache: true
-
-      - name: Build gem
-        run: bundle exec rake build
 
       - name: Publish gem to RubyGems
         uses: rubygems/release-gem@v1

@@ -175,7 +175,7 @@ To enable publishing, add this repository secret:
 
 - `RUBYGEMS_AUTH_TOKEN`: your RubyGems API key with push permissions
 
-The release workflow uses the `rubygems` environment and pushes the built gem automatically.
+The release workflow checks that `CloudstackClient::VERSION` is greater than the latest version on RubyGems before building, then uses the `rubygems` environment to publish.
 
 ## References
 
