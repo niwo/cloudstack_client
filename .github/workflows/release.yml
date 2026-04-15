@@ -5,6 +5,9 @@ on:
     types: [published]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -29,8 +32,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: verify
     environment: rubygems
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout repository
@@ -46,6 +47,6 @@ jobs:
         run: bundle exec rake build
 
       - name: Publish gem to RubyGems
-        env:
-          RUBYGEMS_AUTH_TOKEN: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
-        run: gem push "$(ls pkg/*.gem | sort | tail -n 1)"
+        uses: rubygems/release-gem@v1
+        with:
+          api-key: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
