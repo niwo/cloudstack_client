@@ -164,6 +164,19 @@ $ cloudstack_client list_apis > data/4.15.json
 $ gzip data/4.15.json
 ```
 
+### GitHub Actions
+
+This repository includes GitHub Actions workflows for:
+
+- Running tests and gem build on every push and pull request (`CI`)
+- Publishing the gem to RubyGems when a GitHub Release is published (`Release`)
+
+To enable publishing, add this repository secret:
+
+- `RUBYGEMS_AUTH_TOKEN`: your RubyGems API key with push permissions
+
+The release workflow checks that `CloudstackClient::VERSION` is greater than the latest version on RubyGems before building, then uses the `rubygems` environment to publish.
+
 ## References
 
 - [Apache CloudStack API documentation](http://cloudstack.apache.org/api/apidocs-4.15/)
