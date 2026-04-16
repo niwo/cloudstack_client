@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   id-token: write
 
 jobs:
@@ -54,6 +54,6 @@ jobs:
           bundler-cache: true
 
       - name: Publish gem to RubyGems
-        uses: rubygems/release-gem@v1
+        uses: rubygems/release-gem@v2
         with:
           api-key: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
