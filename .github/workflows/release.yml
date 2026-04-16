@@ -3,10 +3,11 @@ name: Release
 on:
   release:
     types: [published]
-  workflow_dispatch:
+  push:
+    branches: [ "main" ]
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -43,6 +44,8 @@ jobs:
     needs: verify
     environment: rubygems
 
+
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,15 +55,6 @@ jobs:
         with:
           ruby-version: '3.2'
           bundler-cache: true
-
-      - name: Check if RUBYGEMS_AUTH_TOKEN is set
-        run: |
-          if [ -z "${{ secrets.RUBYGEMS_AUTH_TOKEN }}" ]; then
-            echo 'RUBYGEMS_AUTH_TOKEN not set!'
-            exit 1
-          else
-            echo 'RUBYGEMS_AUTH_TOKEN is available.'
-          fi
 
       - name: Publish gem to RubyGems
         uses: rubygems/release-gem@v1
