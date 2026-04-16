@@ -63,6 +63,6 @@ jobs:
           fi
 
       - name: Publish gem to RubyGems
-        uses: rubygems/release-gem@v2
+        uses: rubygems/release-gem@v1
         with:
           api-key: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
