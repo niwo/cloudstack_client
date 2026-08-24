@@ -4,3 +4,7 @@ vendor
 vendor/*
 pkg/*
 pkg
+
+# Gemfile.lock is not checked in for libraries: each supported Ruby version
+# resolves its own compatible dependency set in CI.
+Gemfile.lock
