@@ -1,6 +1,7 @@
 # cloudstack_client
 
-[![Gem Version](https://badge.fury.io/rb/cloudstack_client.png)](http://badge.fury.io/rb/cloudstack_client)
+[![Gem Version](https://img.shields.io/gem/v/cloudstack_client.svg)](https://rubygems.org/gems/cloudstack_client)
+[![CI](https://github.com/niwo/cloudstack_client/actions/workflows/ci.yml/badge.svg)](https://github.com/niwo/cloudstack_client/actions/workflows/ci.yml)
 
 A CloudStack API client written in Ruby.
 
@@ -152,6 +153,25 @@ prod >> list_virtual_machines
 
 ## Development
 
+### Running the tests
+
+```bash
+$ bundle install
+$ bundle exec rake          # tests and RuboCop
+$ bundle exec rake test     # tests only
+$ bundle exec rake rubocop  # RuboCop only
+$ bundle exec rake benchmark
+```
+
+Tests use [Minitest](https://github.com/minitest/minitest) in spec style and
+[WebMock](https://github.com/bblimke/webmock). Outbound network access is
+disabled in the test suite, so any request that is not stubbed fails the test
+rather than reaching a real endpoint. Helpers for stubbing CloudStack responses
+live in `test/support/api_stubs.rb`.
+
+`Gemfile.lock` is deliberately not checked in, so each supported Ruby version
+resolves its own compatible dependency set.
+
 ### Generate or update API definitions
 
 New API definitions can be generated using the `list_apis` command.
@@ -168,8 +188,11 @@ $ gzip data/4.15.json
 
 This repository includes GitHub Actions workflows for:
 
-- Running tests and gem build on every push and pull request (`CI`)
+- Running tests and gem build against every supported Ruby version, plus a
+  RuboCop lint job, on every push and pull request (`CI`)
 - Publishing the gem to RubyGems when a GitHub Release is published (`Release`)
+
+Dependency and GitHub Actions updates are proposed weekly by Dependabot.
 
 To enable publishing, add this repository secret:
 
