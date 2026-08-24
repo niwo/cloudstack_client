@@ -1,4 +1,3 @@
-require "base64"
 require "openssl"
 require "uri"
 require "cgi"
@@ -10,6 +9,7 @@ module CloudstackClient
     include Utils
 
     attr_accessor :api_url, :api_key, :secret_key, :verbose, :debug, :symbolize_keys, :host, :read_timeout
+    attr_accessor :ssl_verify
     attr_accessor :async_poll_interval, :async_timeout, :request_retries
 
     DEF_POLL_INTERVAL = 2.0
@@ -29,6 +29,7 @@ module CloudstackClient
       @async_poll_interval = options[:async_poll_interval] || DEF_POLL_INTERVAL
       @async_timeout = options[:async_timeout] || DEF_ASYNC_TIMEOUT
       @request_retries = options[:request_retries] || DEF_REQUEST_RETRIES
+      @ssl_verify = options.fetch(:ssl_verify, true)
       @options = options
       validate_input!
     end
@@ -48,14 +49,14 @@ module CloudstackClient
       http = Net::HTTP.new(uri.host, uri.port)
       if uri.scheme == 'https'
         http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        http.verify_mode = @ssl_verify ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE
       end
       http.read_timeout = @read_timeout
 
       retries = 0
       begin
         req = Net::HTTP::Get.new(uri.request_uri)
-        req['Host'] = host if host.present?
+        req['Host'] = host unless host.nil? || host.to_s.empty?
         response = http.request(req)
       rescue => e
         retries += 1
@@ -164,7 +165,7 @@ module CloudstackClient
 
     def create_signature(data)
       signature = OpenSSL::HMAC.digest('sha1', @secret_key, data.downcase)
-      signature = Base64.encode64(signature).chomp
+      signature = [signature].pack('m0')
       CGI.escape(signature)
     end
 
