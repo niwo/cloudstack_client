@@ -55,7 +55,7 @@ module CloudstackClient
       retries = 0
       begin
         req = Net::HTTP::Get.new(uri.request_uri)
-        req['Host'] = host if host.present?
+        req['Host'] = host unless host.to_s.strip.empty?
         response = http.request(req)
       rescue => e
         retries += 1
@@ -64,7 +64,9 @@ module CloudstackClient
           print "." if @verbose
           retry
         end
-        raise ConnectionError, "API URL \'#{@api_url}\' is not reachable (after #{retries} attempt#{'s' if retries > 1}): #{e.message}"
+        raise ConnectionError,
+              "API URL \'#{@api_url}\' is not reachable " \
+              "(after #{retries} attempt#{'s' if retries > 1}): #{e.message}"
       end
 
       begin
