@@ -4,6 +4,7 @@ module CloudstackClient
   class ConnectionError < Error; end
   class ConfigurationError < Error; end
   class ParseError < Error; end
+  class ApiDefinitionError < Error; end
   class ApiError < Error; end
   class JobError < Error; end
   class TimeoutError < Error; end

@@ -98,7 +98,7 @@ module CloudstackClient
 
       ARGV.clear
       Ripl.config[:prompt] = "#{@config[:environment]} >> "
-      Ripl.start binding: cs_client.instance_eval{ binding }
+      Ripl.start binding: cs_client.instance_eval { binding }
     end
 
     no_commands do

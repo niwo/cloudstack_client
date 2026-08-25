@@ -91,7 +91,7 @@ describe CloudstackClient::Api do
   end
 
   describe "when asked about all required params" do
-    it "must respond positively for 'createUser' and params 'account, email, firtsname, lastname, password, username'" do
+    it "must respond positively for 'createUser' with all required params" do
       params = {
         "account"   => "Master",
         "email"     => "me@me.com",
@@ -106,6 +106,28 @@ describe CloudstackClient::Api do
 
     it "must respond netagively for 'createUser' and params 'username'" do
       _(@api.all_required_params?('createUser', { "username" => "meme" })).must_equal false
+    end
+  end
+
+  describe "when asked about commands containing acronyms" do
+    it "must respond positively for the camel case name 'createSSHKeyPair'" do
+      _(@api.command_supported?('createSSHKeyPair')).must_equal true
+    end
+
+    it "must respond positively for the underscored name 'create_ssh_key_pair'" do
+      _(@api.command_supported?('create_ssh_key_pair')).must_equal true
+    end
+
+    it "must respond positively for the underscored name 'list_vpc_offerings'" do
+      _(@api.command_supported?('list_vpc_offerings')).must_equal true
+    end
+
+    it "must resolve params via the underscored name of an acronym command" do
+      _(@api.command_supports_param?('create_ssh_key_pair', 'name')).must_equal true
+    end
+
+    it "must return false rather than raise for an unknown command" do
+      _(@api.command_supports_param?('listClowns', 'name')).must_equal false
     end
   end
 

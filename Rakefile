@@ -9,5 +9,20 @@ Rake::TestTask.new do |t|
   t.warning = false
 end
 
-desc "Run Tests"
-task default: :test
+begin
+  require 'rubocop/rake_task'
+  RuboCop::RakeTask.new
+rescue LoadError
+  desc "rubocop is not available"
+  task :rubocop do
+    abort "RuboCop is not available. Run `bundle install` first."
+  end
+end
+
+desc "Run the API benchmark"
+task :benchmark do
+  ruby "-Ilib test/benchmark.rb"
+end
+
+desc "Run tests and RuboCop"
+task default: %i[test rubocop]
