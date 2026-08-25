@@ -4,12 +4,16 @@ require "uri"
 require "cgi"
 require "net/http"
 require "json"
+require "cloudstack_client/request_handling"
 
 module CloudstackClient
   class Connection
     include Utils
+    include RequestHandling
 
-    attr_accessor :api_url, :api_key, :secret_key, :verbose, :debug, :symbolize_keys, :host, :read_timeout
+    attr_reader :api_key, :secret_key
+    attr_accessor :api_url, :verbose, :debug, :symbolize_keys, :host, :read_timeout
+    attr_accessor :verify_ssl, :ca_file
     attr_accessor :async_poll_interval, :async_timeout, :request_retries
 
     DEF_POLL_INTERVAL = 2.0
@@ -25,6 +29,8 @@ module CloudstackClient
       @debug = options[:debug] ? true : false
       @symbolize_keys = options[:symbolize_keys] ? true : false
       @host = options[:host]
+      @verify_ssl = options.fetch(:verify_ssl, true)
+      @ca_file = options[:ca_file]
       @read_timeout = options[:read_timeout] || DEF_REQ_TIMEOUT
       @async_poll_interval = options[:async_poll_interval] || DEF_POLL_INTERVAL
       @async_timeout = options[:async_timeout] || DEF_ASYNC_TIMEOUT
@@ -36,62 +42,6 @@ module CloudstackClient
     ##
     # Sends a synchronous request to the CloudStack API and returns the response as a Hash.
     #
-
-    def send_request(params, opts = {})
-      params['response'] = 'json'
-      params['apiKey'] = @api_key
-      print_debug_output JSON.pretty_generate(params) if @debug
-
-      data = params_to_data(params)
-      uri = URI.parse "#{@api_url}?#{data}&signature=#{create_signature(data)}"
-
-      http = Net::HTTP.new(uri.host, uri.port)
-      if uri.scheme == 'https'
-        http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-      end
-      http.read_timeout = @read_timeout
-
-      retries = 0
-      begin
-        req = Net::HTTP::Get.new(uri.request_uri)
-        req['Host'] = host unless host.to_s.strip.empty?
-        response = http.request(req)
-      rescue => e
-        retries += 1
-        if retries < @request_retries
-          sleep(retries) # incremental back-off
-          print "." if @verbose
-          retry
-        end
-        raise ConnectionError,
-              "API URL \'#{@api_url}\' is not reachable " \
-              "(after #{retries} attempt#{'s' if retries > 1}): #{e.message}"
-      end
-
-      begin
-        body = JSON.parse(response.body, symbolize_names: @symbolize_keys).values.first
-      rescue JSON::ParserError
-        raise ParseError,
-              "Response from server is not readable. Check if the API endpoint (#{@api_url}) is valid and accessible."
-      end
-
-      if response.is_a?(Net::HTTPOK)
-        return body unless body.respond_to?(:keys)
-        if body.size == 2 && body.key?(k('count'))
-          return opts[:include_count] ? body : body.reject { |key, _| key == k('count') }.values.first
-        elsif body.size == 1 && body.values.first.respond_to?(:keys)
-          item = body.values.first
-          return (item.is_a?(Array) || item.is_a?(Hash)) ? item : []
-        else
-          body.reject! { |key, _| key == k('count') } if body.key?(k('count')) && !opts[:include_count]
-          body.size == 0 ? [] : body
-        end
-      else
-        message = body[k('errortext')] rescue body
-        raise ApiError, "Status #{response.code}: #{message}."
-      end
-    end
 
     ##
     # Sends an asynchronous request and waits for the response.
@@ -118,7 +68,11 @@ module CloudstackClient
         when 1
           return data[k('jobresult')]
         when 2
-          raise JobError, "Request failed (#{data[k('jobresultcode')]}): #{data[k('jobresult')][k('errortext')]}."
+          result = data[k('jobresult')]
+          error_text = result.is_a?(Hash) ? result[k('errortext')] : nil
+          error_text ||= "Unknown error"
+          raise JobError,
+                "Request failed (#{data[k('jobresultcode')]}): #{error_text}."
         end
 
         STDOUT.flush if @verbose

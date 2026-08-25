@@ -10,7 +10,7 @@ module CloudstackClient
       end
 
       begin
-        config = YAML::load(IO.read file)
+        config = YAML.safe_load(IO.read(file), permitted_classes: [Symbol])
       rescue => e
         message = "Can't load configuration from file '#{file}'."
         if configuration[:debug]
@@ -20,13 +20,25 @@ module CloudstackClient
         raise ConfigurationError, message
       end
 
+      unless config.is_a?(Hash)
+        raise ConfigurationError, "Configuration file '#{file}' must contain a hash."
+      end
+
       if env = configuration[:env] || config[:default]
         unless config = config[env]
           raise ConfigurationError, "Can't find environment #{env}."
         end
       end
 
-      unless config.key?(:url) && config.key?(:api_key) && config.key?(:secret_key)
+      unless config.is_a?(Hash)
+        raise ConfigurationError, "Environment #{env} must contain a hash."
+      end
+
+      required_keys = %i[url api_key secret_key]
+      missing_keys = required_keys.reject do |key|
+        config.key?(key) && !config[key].to_s.strip.empty?
+      end
+      unless missing_keys.empty?
         message = "The environment #{env || '\'-\''} does not contain all required keys."
         raise ConfigurationError, message
       end

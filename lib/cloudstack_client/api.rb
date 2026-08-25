@@ -116,8 +116,9 @@ module CloudstackClient
       Zlib::GzipReader.open(@api_file) do |gz|
         JSON.parse(gz.read)
       end.each {|cmd| @commands[cmd["name"]] = cmd }
-    rescue => e
-      raise "Error: Unable to read file '#{@api_file}': #{e.message}"
+    rescue Zlib::Error, JSON::ParserError, SystemCallError, EOFError => e
+      raise ApiDefinitionError,
+            "Unable to read API definition '#{@api_file}': #{e.message}"
     end
 
   end
