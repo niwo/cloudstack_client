@@ -95,6 +95,14 @@ describe CloudstackClient::Client do
       _(error.message).must_match(/templateid/)
     end
 
+    it "raises ParameterError for unsupported parameters in strict mode" do
+      error = _(proc {
+        client.list_virtual_machines({ unsupported: true }, strict_params: true)
+      }).must_raise CloudstackClient::ParameterError
+
+      _(error.message).must_match(/does not support parameter unsupported/)
+    end
+
     it "does not issue a request when validation fails" do
       _(proc { client.create_user(username: "meme") })
         .must_raise CloudstackClient::ParameterError

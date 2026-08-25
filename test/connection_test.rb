@@ -52,6 +52,21 @@ describe CloudstackClient::Connection do
       _(connection.async_timeout).must_equal CloudstackClient::Connection::DEF_ASYNC_TIMEOUT
       _(connection.async_poll_interval).must_equal CloudstackClient::Connection::DEF_POLL_INTERVAL
       _(connection.request_retries).must_equal CloudstackClient::Connection::DEF_REQUEST_RETRIES
+      _(connection.verify_ssl).must_equal true
+      _(connection).wont_respond_to :secret_key=
+    end
+
+    it "allows SSL verification to be disabled explicitly" do
+      configured = CloudstackClient::Connection.new(
+        TestHelpers::TEST_URL,
+        TestHelpers::TEST_KEY,
+        TestHelpers::TEST_SECRET,
+        verify_ssl: false,
+        ca_file: "/tmp/cloudstack-ca.pem"
+      )
+
+      _(configured.verify_ssl).must_equal false
+      _(configured.ca_file).must_equal "/tmp/cloudstack-ca.pem"
     end
   end
 
@@ -290,6 +305,20 @@ describe CloudstackClient::Connection do
 
       _(error.message).must_match(/Insufficient capacity/)
       _(error.message).must_match(/530/)
+    end
+
+    it "raises JobError when a failed job has no error text" do
+      stub_async(
+        "deployVirtualMachine",
+        polls: [{ "jobstatus" => 2, "jobresultcode" => 530 }]
+      )
+
+      error = connection.stub(:sleep, nil) do
+        _(proc { connection.send_async_request("command" => "deployVirtualMachine") })
+          .must_raise CloudstackClient::JobError
+      end
+
+      _(error.message).must_match(/Unknown error/)
     end
 
     it "raises TimeoutError when the job never completes" do

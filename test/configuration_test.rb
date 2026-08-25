@@ -50,6 +50,16 @@ describe CloudstackClient::Configuration do
       _(error.message).must_match(/Can't load configuration/)
     end
 
+    it "must reject unsafe YAML objects" do
+      error = _(proc {
+        CloudstackClient::Configuration.load(
+          config_file: "#{File.expand_path File.dirname(__FILE__)}/data/cloudstack-unsafe.yml"
+        )
+      }).must_raise CloudstackClient::ConfigurationError
+
+      _(error.message).must_match(/Can't load configuration/)
+    end
+
     it "must include the backtrace in debug mode" do
       error = _(proc {
         CloudstackClient::Configuration.load(
@@ -76,6 +86,16 @@ describe CloudstackClient::Configuration do
       error = _(proc {
         CloudstackClient::Configuration.load(
           config_file: "#{File.expand_path File.dirname(__FILE__)}/data/cloudstack-incomplete.yml"
+        )
+      }).must_raise CloudstackClient::ConfigurationError
+
+      _(error.message).must_match(/does not contain all required keys/)
+    end
+
+    it "must raise when a required value is empty" do
+      error = _(proc {
+        CloudstackClient::Configuration.load(
+          config_file: "#{File.expand_path File.dirname(__FILE__)}/data/cloudstack-empty.yml"
         )
       }).must_raise CloudstackClient::ConfigurationError
 
