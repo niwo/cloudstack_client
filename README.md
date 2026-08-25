@@ -154,7 +154,13 @@ options = {
   read_timeout: 10,
   # HTTP request attempts before raising ConnectionError. Default: 1.
   # Uses incremental back-off between attempts.
-  request_retries: 3
+  request_retries: 3,
+  # Verify HTTPS certificates. Default: true.
+  verify_ssl: true,
+  # Optional path to a custom CA certificate bundle.
+  ca_file: "/path/to/ca-bundle.pem",
+  # Raise ParameterError for unsupported command parameters. Default: false.
+  strict_params: false
 }
 cs = CloudstackClient::Client.new(
   config[:url],
@@ -163,6 +169,13 @@ cs = CloudstackClient::Client.new(
   options
 )
 ```
+
+HTTPS certificate verification is enabled by default. Set `verify_ssl: false`
+only when connecting to a trusted endpoint with a certificate that cannot be
+validated, such as a local development server.
+
+By default, unsupported command parameters are ignored. Set
+`strict_params: true` to raise `ParameterError` instead.
 
 For a single call you can override defaults on the **second** hash (client
 options), without changing the client instance:
