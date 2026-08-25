@@ -5,21 +5,30 @@
 
 A CloudStack API client written in Ruby.
 
+## Version 2.0.0
+
+Version 2.0.0 requires Ruby 3.0 or newer. It also fixes request dispatch when
+no custom host is configured and improves support for CloudStack commands with
+acronyms, such as `create_ssh_key_pair`.
+
 ## Installation
 
 Install the cloudstack_client gem:
 
 ```bash
-$ gem install cloudstack_client
+gem install cloudstack_client
 ```
 
 ## Features
 
 - Access to the whole CloudStack-API from Ruby
-- Interactive console for playing with the CloudStack API: ```cloudstack_client console```
+- Interactive console for playing with the CloudStack API:
+  `cloudstack_client console`
 - Dynamically builds API methods based on the listApis function of CloudStack
-- Command names are converted to match Ruby naming conventions (i.e. ListVirtualMachines becomes list_virtual_machines)
-- Accepts Ruby Hash arguments passed to commands as options (i.e. list_all: true becomes listall=true)
+- Command names are converted to match Ruby naming conventions (i.e.
+  ListVirtualMachines becomes list_virtual_machines)
+- Accepts Ruby Hash arguments passed to commands as options (i.e. `list_all: true`
+  becomes `listall=true`)
 - Assure all required arguments are passed
 - Removes unsupported arguments and arguments with nil values from commands
 
@@ -70,11 +79,15 @@ cs = CloudstackClient::Client.new(
 
 ### Pagination and Response Options
 
-When working with paginated responses, you can include the total count in the API response:
+When working with paginated responses, you can include the total count in the
+API response:
 
 ```ruby
 # Get paginated results with count information
-vms = cs.list_virtual_machines({ page: 1, pagesize: 10 }, { include_count: true })
+vms = cs.list_virtual_machines(
+  { page: 1, pagesize: 10 },
+  { include_count: true }
+)
 total_count = vms[:count]
 items = vms[:virtualmachine]
 
@@ -85,9 +98,10 @@ vms = cs.list_virtual_machines(page: 1, pagesize: 10)
 
 ### Using the configuration module
 
-The configuration module of CloudstackClient makes it easy to load CloudStack API settings from configuration files.
+The configuration module of CloudstackClient makes it easy to load CloudStack
+API settings from configuration files.
 
-#### Example
+#### Configuration Example
 
 ```ruby
 require "cloudstack_client"
@@ -95,7 +109,11 @@ require "cloudstack_client/configuration"
 
 # looks for ~/.cloudstack.yml per default
 config = CloudstackClient::Configuration.load
-cs = CloudstackClient::Client.new(config[:url], config[:api_key], config[:secret_key])
+cs = CloudstackClient::Client.new(
+  config[:url],
+  config[:api_key],
+  config[:secret_key]
+)
 ```
 
 #### Configuration files
@@ -121,33 +139,50 @@ test:
 
 ### Configuration options
 
-You can pass `options` as 4th argument in `CloudstackClient::Client.new`. All its keys are optional.
+You can pass `options` as 4th argument in `CloudstackClient::Client.new`.
+All its keys are optional.
 
 ```ruby
 options = {
-  symbolize_keys: true, # pass symbolize_names: true in JSON#parse for Cloudstack responses, default: false
-  host: 'localhost', # custom host header to be used in Net::Http. May be useful when Cloudstack is set up locally via docker (i.e. Cloudstack-simulator), default: parsed from config[:url] via Net::Http
-  read_timeout: 10, # timeout in seconds of a connection to the Cloudstack, default: 60
-  request_retries: 3 # number of attempts for HTTP requests before raising a ConnectionError, default: 1 (no retries). Uses incremental back-off between attempts.
+  # Pass symbolize_names: true in JSON#parse for CloudStack responses.
+  # Default: false.
+  symbolize_keys: true,
+  # Custom host header for Net::HTTP. Useful with CloudStack-simulator.
+  # Default: parsed from config[:url] via Net::HTTP.
+  host: 'localhost',
+  # Timeout in seconds for a connection to CloudStack. Default: 60.
+  read_timeout: 10,
+  # HTTP request attempts before raising ConnectionError. Default: 1.
+  # Uses incremental back-off between attempts.
+  request_retries: 3
 }
-cs = CloudstackClient::Client.new(config[:url], config[:api_key], config[:secret_key], options)
+cs = CloudstackClient::Client.new(
+  config[:url],
+  config[:api_key],
+  config[:secret_key],
+  options
+)
 ```
 
-For a single call you can override defaults on the **second** hash (client options), without changing the client instance:
+For a single call you can override defaults on the **second** hash (client
+options), without changing the client instance:
 
 ```ruby
-cs.deploy_virtual_machine({ zoneid: "...", serviceofferingid: "...", templateid: "..." },
-                          async_timeout: 600, async_poll_interval: 5)
+cs.deploy_virtual_machine(
+  { zoneid: "...", serviceofferingid: "...", templateid: "..." },
+  async_timeout: 600,
+  async_poll_interval: 5
+)
 ```
 
 ### Interactive Console
 
 cloudstack_client comes with an interactive console.
 
-#### Example
+#### Console Example
 
 ```bash
-$ cloudstack_client console -e prod
+cloudstack_client console -e prod
 prod >> list_virtual_machines
 ```
 
@@ -156,11 +191,11 @@ prod >> list_virtual_machines
 ### Running the tests
 
 ```bash
-$ bundle install
-$ bundle exec rake          # tests and RuboCop
-$ bundle exec rake test     # tests only
-$ bundle exec rake rubocop  # RuboCop only
-$ bundle exec rake benchmark
+bundle install
+bundle exec rake          # tests and RuboCop
+bundle exec rake test     # tests only
+bundle exec rake rubocop  # RuboCop only
+bundle exec rake benchmark
 ```
 
 Tests use [Minitest](https://github.com/minitest/minitest) in spec style and
@@ -176,12 +211,12 @@ resolves its own compatible dependency set.
 
 New API definitions can be generated using the `list_apis` command.
 
-#### Example
+#### API Definition Example
 
 ```bash
 # running against a CloudStack 4.15 API endpoint:
-$ cloudstack_client list_apis > data/4.15.json
-$ gzip data/4.15.json
+cloudstack_client list_apis > data/4.15.json
+gzip data/4.15.json
 ```
 
 ### GitHub Actions
@@ -198,7 +233,9 @@ To enable publishing, add this repository secret:
 
 - `RUBYGEMS_AUTH_TOKEN`: your RubyGems API key with push permissions
 
-The release workflow checks that `CloudstackClient::VERSION` is greater than the latest version on RubyGems before building, then uses the `rubygems` environment to publish.
+The release workflow checks that `CloudstackClient::VERSION` is greater than
+the latest version on RubyGems before building, then uses the `rubygems`
+environment to publish.
 
 ## References
 
@@ -214,4 +251,6 @@ The release workflow checks that `CloudstackClient::VERSION` is greater than the
 
 ## License
 
-Released under the MIT License. See the [LICENSE](https://raw.github.com/niwo/cloudstack_client/master/LICENSE.txt) file for further details.
+Released under the MIT License. See the
+[LICENSE](https://raw.github.com/niwo/cloudstack_client/master/LICENSE.txt)
+file for further details.
