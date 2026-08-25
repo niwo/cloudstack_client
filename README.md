@@ -242,9 +242,10 @@ This repository includes GitHub Actions workflows for:
 
 Dependency and GitHub Actions updates are proposed weekly by Dependabot.
 
-To enable publishing, add this repository secret:
-
-- `RUBYGEMS_AUTH_TOKEN`: your RubyGems API key with push permissions
+To enable publishing, configure a RubyGems trusted publisher for this
+repository, workflow, and `rubygems` environment. The release workflow grants
+the publish job GitHub's OIDC `id-token` permission, so no RubyGems API key
+secret is required.
 
 The release workflow checks that `CloudstackClient::VERSION` is greater than
 the latest version on RubyGems before building, then uses the `rubygems`
