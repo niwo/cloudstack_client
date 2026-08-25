@@ -114,9 +114,14 @@ module CloudstackClient
     def load_commands
       @commands = {}
       @underscored_commands = nil
-      Zlib::GzipReader.open(@api_file) do |gz|
+      parsed = Zlib::GzipReader.open(@api_file) do |gz|
         JSON.parse(gz.read)
-      end.each {|cmd| @commands[cmd["name"]] = cmd }
+      end
+      unless parsed.is_a?(Array) && parsed.all? { |cmd| cmd.is_a?(Hash) }
+        raise ApiDefinitionError,
+              "Unable to read API definition '#{@api_file}': unexpected format (expected an array of command hashes)"
+      end
+      parsed.each { |cmd| @commands[cmd["name"]] = cmd }
     rescue Zlib::Error, JSON::ParserError, SystemCallError, EOFError => e
       raise ApiDefinitionError,
             "Unable to read API definition '#{@api_file}': #{e.message}"
