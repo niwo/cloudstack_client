@@ -1,5 +1,6 @@
 require "zlib"
 require "json"
+require "cloudstack_client/error"
 require "cloudstack_client/utils"
 
 module CloudstackClient
