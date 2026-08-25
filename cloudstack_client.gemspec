@@ -38,8 +38,6 @@ Gem::Specification.new do |gem|
   # Allow minitest 6 on Ruby >= 3.2 while staying installable on Ruby 3.0/3.1.
   gem.add_development_dependency('minitest', '>= 5.14', '< 7')
   gem.add_development_dependency('minitest-reporters', '~> 1.8')
-  # Minitest 6 extracted Minitest::Mock and Object#stub into their own gem.
-  gem.add_development_dependency('minitest-mock', '>= 5.25')
   gem.add_development_dependency('webmock', '~> 3.26')
   gem.add_development_dependency('benchmark', '>= 0.3')
   gem.add_development_dependency('rubocop', '~> 1.90')
