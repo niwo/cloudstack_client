@@ -25,11 +25,11 @@ module CloudstackClient
 
           args.each do |k, v|
             k = k.to_s.gsub("_", "")
-            if v && @api.command_supports_param?(command["name"], k)
-              params[k] = v
-            elsif v && options[:strict_params]
-              raise ParameterError,
-                    "#{command['name']} does not support parameter #{k}"
+          if !v.nil? && @api.command_supports_param?(command["name"], k)
+            params[k] = v
+          elsif !v.nil? && options.fetch(:strict_params, @options[:strict_params])
+            raise ParameterError,
+                  "#{command['name']} does not support parameter #{k}"
             end
           end
 
