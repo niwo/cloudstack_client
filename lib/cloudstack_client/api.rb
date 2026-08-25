@@ -84,11 +84,7 @@ module CloudstackClient
     end
 
     def set_api_path(options)
-      @api_path = if options[:api_path]
-        File.expand_path(options[:api_path])
-      else
-        API_PATH
-      end
+      @api_path = options[:api_path] ? File.expand_path(options[:api_path]) : API_PATH
     end
 
     def set_api_version(options)
@@ -117,7 +113,7 @@ module CloudstackClient
       parsed = Zlib::GzipReader.open(@api_file) do |gz|
         JSON.parse(gz.read)
       end
-      unless parsed.is_a?(Array) && parsed.all? { |cmd| cmd.is_a?(Hash) }
+      unless parsed.is_a?(Array) && parsed.all?(Hash)
         raise ApiDefinitionError,
               "Unable to read API definition '#{@api_file}': unexpected format (expected an array of command hashes)"
       end
