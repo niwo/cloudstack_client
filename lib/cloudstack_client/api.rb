@@ -25,14 +25,29 @@ module CloudstackClient
     end
 
     def command_supported?(command)
-      @commands.has_key? underscore_to_camel_case(command)
+      !find_command(command).nil?
     end
 
     def command_supports_param?(command, key)
-      command = underscore_to_camel_case(command)
-      @commands[command]["params"].detect do |params|
-        params["name"] == key.to_s
-      end ? true : false
+      command = find_command(command)
+      return false if command.nil?
+
+      command["params"].any? { |param| param["name"] == key.to_s }
+    end
+
+    # Resolves a command given either its CloudStack name ("createSSHKeyPair")
+    # or its underscored Ruby name ("create_ssh_key_pair").
+    #
+    # underscore_to_camel_case cannot be relied on here: converting to
+    # underscores loses acronym casing, so "create_ssh_key_pair" converts back
+    # to "createSshKeyPair", which is not a CloudStack command. Underscored
+    # names are resolved through an index built in the lossy direction instead.
+    #
+    # The index is built on first use: most lookups arrive as CloudStack names
+    # and hit @commands directly, so instantiating an Api should not pay for it.
+    def find_command(command)
+      command = command.to_s
+      @commands[command] || underscored_commands[command]
     end
 
     def required_params(command)
@@ -89,13 +104,21 @@ module CloudstackClient
       @api_version
     end
 
+    def underscored_commands
+      @underscored_commands ||= @commands.each_with_object({}) do |(name, command), index|
+        index[camel_case_to_underscore(name)] = command
+      end
+    end
+
     def load_commands
       @commands = {}
+      @underscored_commands = nil
       Zlib::GzipReader.open(@api_file) do |gz|
         JSON.parse(gz.read)
       end.each {|cmd| @commands[cmd["name"]] = cmd }
-    rescue => e
-      raise "Error: Unable to read file '#{@api_file}': #{e.message}"
+    rescue Zlib::Error, JSON::ParserError, SystemCallError, EOFError => e
+      raise ApiDefinitionError,
+            "Unable to read API definition '#{@api_file}': #{e.message}"
     end
 
   end

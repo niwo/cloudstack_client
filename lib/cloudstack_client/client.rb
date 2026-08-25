@@ -27,6 +27,9 @@ module CloudstackClient
             k = k.to_s.gsub("_", "")
             if v && @api.command_supports_param?(command["name"], k)
               params[k] = v
+            elsif v && options[:strict_params]
+              raise ParameterError,
+                    "#{command['name']} does not support parameter #{k}"
             end
           end
 

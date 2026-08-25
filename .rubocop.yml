@@ -1,0 +1,33 @@
+plugins:
+  - rubocop-minitest
+  - rubocop-rake
+
+AllCops:
+  TargetRubyVersion: 3.0
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - 'data/**/*'
+    - 'test/data/**/*'
+    - 'vendor/**/*'
+
+inherit_from: .rubocop_todo.yml
+
+# This gem predates frozen string literals and does not mutate string literals
+# in place; enabling this would be churn without benefit.
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+# Documentation lives in the README rather than as class level comments.
+Style/Documentation:
+  Enabled: false
+
+# A gemspec is one long block by construction, and test suites are long blocks
+# of describe/it. Neither is a useful complexity signal.
+Metrics/BlockLength:
+  Exclude:
+    - 'test/**/*'
+    - '*.gemspec'
+
+Layout/LineLength:
+  Max: 120
