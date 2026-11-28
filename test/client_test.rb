@@ -118,7 +118,7 @@ describe CloudstackClient::Client do
         lastname: "Me", password: "secret", username: "meme"
       )
 
-      _(result).must_equal("id" => "u-1")
+      _(result).must_equal({ "id" => "u-1" })
     end
   end
 
@@ -142,7 +142,7 @@ describe CloudstackClient::Client do
         )
       end
 
-      _(result).must_equal("id" => "vm-1")
+      _(result).must_equal({ "id" => "vm-1" })
       assert_requested(:get, ApiStubs::ANY_REQUEST,
         query: hash_including("command" => "queryAsyncJobResult"))
     end
@@ -155,7 +155,7 @@ describe CloudstackClient::Client do
         { zoneid: "1", serviceofferingid: "2", templateid: "3" }, { sync: true }
       )
 
-      _(result).must_equal("jobid" => "job-1")
+      _(result).must_equal({ "jobid" => "job-1" })
       assert_not_requested(:get, ApiStubs::ANY_REQUEST,
         query: hash_including("command" => "queryAsyncJobResult"))
     end

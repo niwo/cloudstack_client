@@ -157,13 +157,13 @@ describe CloudstackClient::Connection do
     it "unwraps a single nested Hash" do
       stub_command("createUser", { "createuserresponse" => { "user" => { "id" => "42" } } })
 
-      _(connection.send_request("command" => "createUser")).must_equal("id" => "42")
+      _(connection.send_request("command" => "createUser")).must_equal({ "id" => "42" })
     end
 
     it "returns a scalar-valued body unchanged" do
       stub_command("someCommand", { "somecommandresponse" => { "jobid" => "job-9" } })
 
-      _(connection.send_request("command" => "someCommand")).must_equal("jobid" => "job-9")
+      _(connection.send_request("command" => "someCommand")).must_equal({ "jobid" => "job-9" })
     end
 
     it "returns an empty body as an empty Array" do
@@ -280,7 +280,7 @@ describe CloudstackClient::Connection do
         connection.send_async_request("command" => "deployVirtualMachine")
       end
 
-      _(result).must_equal("virtualmachine" => { "id" => "vm-1" })
+      _(result).must_equal({ "virtualmachine" => { "id" => "vm-1" } })
     end
 
     it "polls until the job leaves the pending state" do
@@ -291,7 +291,7 @@ describe CloudstackClient::Connection do
         connection.send_async_request("command" => "deployVirtualMachine")
       end
 
-      _(result).must_equal("id" => "vm-1")
+      _(result).must_equal({ "id" => "vm-1" })
     end
 
     it "raises JobError when the job fails" do
